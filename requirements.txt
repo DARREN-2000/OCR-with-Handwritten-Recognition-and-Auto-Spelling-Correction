@@ -7,5 +7,6 @@ Flask==3.0.3
 Werkzeug==3.0.6
 opencv-contrib-python==4.5.3.56
 Flask-RESTful==0.3.10
-textblob==0.17.1
+nltk==3.9.3
+langdetect==1.0.9
 language-tool-python==2.7.1
