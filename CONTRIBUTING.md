@@ -4,7 +4,7 @@ Fork this repository (Click the Fork button on the top right of this page, click
 
 Clone your fork down to your local machine
 
-    git clone https://github.com/{your username}/textextractor2.0.git
+    git clone https://github.com/{your username}/OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction.git
 
 Create a branch
 
@@ -12,11 +12,11 @@ Create a branch
 
 Make your changes
     
- - Check out the issues [here](https://github.com/Aman-zishan/textextractor2.0/issues)
+ - Check out the issues [here](https://github.com/DARREN-2000/OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction/issues)
  - Add new features
  - Improve OCR
  - Reduce loading time
- - Add your name to the [CONTRIBUTORS.md](https://github.com/Aman-zishan/textextractor2.0/CONTRIBUTORS.md) file
+ - Add your name to the [CONTRIBUTORS.md](https://github.com/DARREN-2000/OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction/blob/master/CONTRIBUTORS.md) file
 
 Commit and push 
 

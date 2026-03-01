@@ -1,16 +1,20 @@
 
-from tkinter import Text
 from flask import Flask, render_template, request, url_for, Response
 from flask_restful import Api, Resource, reqparse
 import pytesseract
 import cv2
 from PIL import Image
-import os, werkzeug
+import os, sys, werkzeug
 from math import floor
 import base64
 from textblob import TextBlob
-import language_tool_python  
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe' 
+import language_tool_python
+
+# On Windows, specify the Tesseract executable path if it is not on PATH
+if sys.platform == "win32":
+    tesseract_path = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+    if os.path.exists(tesseract_path):
+        pytesseract.pytesseract.tesseract_cmd = tesseract_path
 
 
 REDUCTION_COEFF = 0.9
@@ -88,7 +92,7 @@ def gettext():
 class UploadAPI(Resource):
     def get(self):
         print("check passed")
-        return {"message": "API For TextExtractor2.0"}, 200
+        return {"message": "API For OCR with Handwritten Recognition and Auto Spelling Correction"}, 200
     
     def post(self):
         data = parser.parse_args()

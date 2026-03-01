@@ -5,12 +5,10 @@
 
 <div align="center">
 
-[![Build Status](https://travis-ci.com/Aman-zishan/textextractor2.0.svg?branch=master)](https://travis-ci.com/Aman-zishan/textextractor2.0)
-[![GitHub issues](https://img.shields.io/github/issues/Aman-zishan/textextractor2.0.svg)](https://GitHub.com/Aman-zishan/textextractor2.0/issues/)
-[![Website perso.crans.org](https://img.shields.io/website-up-down-green-red/http/perso.crans.org.svg)](http://perso.crans.org/)
-[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/Aman-zishan/textextractor2.0/issues)
+[![GitHub issues](https://img.shields.io/github/issues/DARREN-2000/OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction.svg)](https://GitHub.com/DARREN-2000/OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction/issues/)
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/DARREN-2000/OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction/issues)
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
-[![GitHub license](https://img.shields.io/github/license/Aman-zishan/textextractor2.0.svg)](https://github.com/Aman-zishan/textextractor2.0/blob/master/LICENSE)
+[![GitHub license](https://img.shields.io/github/license/DARREN-2000/OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction.svg)](https://github.com/DARREN-2000/OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction/blob/master/LICENSE)
 
 </div>
 
@@ -26,13 +24,13 @@
 1. **:round_pushpin: clone the repository.**
 
    ```shell
-   $git clone https://github.com/Aman-zishan/textextractor2.0.git
+   $git clone https://github.com/DARREN-2000/OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction.git
 
    ```
 2. **:checkered_flag: navigate to downloaded folder.**
 
    ```shell
-   $cd textextractor2.0
+   $cd OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction
 
    ```
 3. **:construction: set up virtual environment.**
@@ -109,7 +107,7 @@
 
 Hacktoberfest® is open to everyone in our global community. Whether you’re a developer, student learning to code, event host, or company of any size, you can help drive growth of open source and make positive contributions to an ever-growing community. All backgrounds and skill levels are encouraged to complete the challenge.
 
-Go through the [guidelines](https://github.com/Aman-zishan/textextractor2.0/blob/master/CONTRIBUTING.md) and feel free to contribute to this open source project!
+Go through the [guidelines](https://github.com/DARREN-2000/OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction/blob/master/CONTRIBUTING.md) and feel free to contribute to this open source project!
 
 
 
