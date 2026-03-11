@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}OCR Spelling Correction{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="{{ url_for('web.home') }}" class="nav-brand">🔍 OCR Correction</a>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('web.home') }}">Home</a></li>
+                <li><a href="{{ url_for('web.about') }}">About</a></li>
+                <li><a href="/api/v1/">API</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 NLP-Based OCR Spelling Correction System &middot;
+                <a href="https://github.com/DARREN-2000/OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction" target="_blank">GitHub</a>
+            </p>
+        </div>
+    </footer>
+</body>
+</html>

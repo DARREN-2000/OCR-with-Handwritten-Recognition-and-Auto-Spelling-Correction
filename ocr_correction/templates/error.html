@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Error – OCR Spelling Correction{% endblock %}
+
+{% block content %}
+<section class="error-section">
+    <div class="error-card">
+        <div class="error-icon">⚠️</div>
+        <h1>Something Went Wrong</h1>
+        <p>
+            We couldn't process your image. This might happen if:
+        </p>
+        <ul>
+            <li>The uploaded file is not a valid image (JPEG, PNG, BMP, TIFF)</li>
+            <li>The image is too large or corrupted</li>
+            <li>The image doesn't contain readable text</li>
+        </ul>
+        <a href="{{ url_for('web.home') }}" class="btn btn-primary">← Try Again</a>
+    </div>
+</section>
+{% endblock %}
