@@ -1,43 +1,53 @@
-## Getting started
+# Contributing
 
-Fork this repository (Click the Fork button on the top right of this page, click your Profile Image)
+Thank you for your interest in contributing to this project!
 
-Clone your fork down to your local machine
+## Getting Started
 
-    git clone https://github.com/{your username}/textextractor2.0.git
+1. **Fork** this repository and clone your fork locally.
 
-Create a branch
+   ```bash
+   git clone https://github.com/{your-username}/OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction.git
+   cd OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction
+   ```
 
-    git checkout -b branch-name
+2. **Create a branch** for your change.
 
-Make your changes
-    
- - Check out the issues [here](https://github.com/Aman-zishan/textextractor2.0/issues)
- - Add new features
- - Improve OCR
- - Reduce loading time
- - Add your name to the [CONTRIBUTORS.md](https://github.com/Aman-zishan/textextractor2.0/CONTRIBUTORS.md) file
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
 
-Commit and push 
+3. **Set up the development environment.**
 
-    git init
-    
-    //It is used to initialize a git repo in your local machine
-    
-    git add .
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate   # Windows: venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
 
-    //It is used to stage the changed file. 
-    
-    git commit -m 'Commit message'
-    
-    //It is used to commit the file with a short message.
+## Ways to Contribute
 
-    git push origin branch-name
-    
-    //It is used to push the file into the local repository.
+- Improve OCR accuracy or add new pre-processing steps
+- Extend multilingual language support
+- Improve API performance or add new endpoints
+- Fix bugs or improve error handling
+- Improve documentation or add usage examples
+- Add your name to [CONTRIBUTORS.md](CONTRIBUTORS.md)
 
-Create a new pull request from your forked repository (Click the New Pull Request button located at the top of your repo) 
+## Submitting a Pull Request
 
-Wait for your PR review and merge approval 
+1. Commit your changes with a clear message:
 
-<b> :star: Star this repository if you had fun</b>
+   ```bash
+   git add .
+   git commit -m "feat: describe your change clearly"
+   git push origin feature/your-feature-name
+   ```
+
+2. Open a Pull Request against the `master` branch and describe what you changed and why.
+
+3. Wait for review — feedback will be given promptly.
+
+---
+
+⭐ If this project helped you, please consider starring the repository!
