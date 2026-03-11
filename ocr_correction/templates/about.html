@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}About – OCR Spelling Correction{% endblock %}
+
+{% block content %}
+<section class="about-section">
+    <h1>About This Project</h1>
+
+    <div class="about-content">
+        <p>
+            This project implements an <strong>NLP-based automatic spelling correction system</strong>
+            that processes scanned or handwritten documents end-to-end. It combines Tesseract OCR
+            with an NLP pipeline (NLTK tokenization + LanguageTool language modeling) to deliver
+            accurate text extraction and correction.
+        </p>
+
+        <h2>Pipeline Architecture</h2>
+        <div class="pipeline">
+            <div class="pipeline-step">
+                <span class="step-number">1</span>
+                <h3>Image Pre-processing</h3>
+                <p>Grayscale → Denoising → Adaptive Thresholding</p>
+            </div>
+            <div class="pipeline-arrow">→</div>
+            <div class="pipeline-step">
+                <span class="step-number">2</span>
+                <h3>Tesseract OCR</h3>
+                <p>LSTM engine for text extraction</p>
+            </div>
+            <div class="pipeline-arrow">→</div>
+            <div class="pipeline-step">
+                <span class="step-number">3</span>
+                <h3>NLTK Tokenizer</h3>
+                <p>Sentence &amp; word segmentation</p>
+            </div>
+            <div class="pipeline-arrow">→</div>
+            <div class="pipeline-step">
+                <span class="step-number">4</span>
+                <h3>Language Detection</h3>
+                <p>Auto-detect from 5 languages</p>
+            </div>
+            <div class="pipeline-arrow">→</div>
+            <div class="pipeline-step">
+                <span class="step-number">5</span>
+                <h3>LanguageTool</h3>
+                <p>Grammar &amp; spelling correction</p>
+            </div>
+        </div>
+
+        <h2>Supported Languages</h2>
+        <ul class="language-list">
+            <li>🇺🇸 English</li>
+            <li>🇫🇷 French</li>
+            <li>🇩🇪 German</li>
+            <li>🇪🇸 Spanish</li>
+            <li>🇵🇹 Portuguese</li>
+        </ul>
+
+        <h2>REST API</h2>
+        <p>
+            This system also exposes a versioned REST API at <code>/api/v1/</code>.
+            Send a <code>POST</code> request with an image file and receive the extracted
+            and corrected text as JSON. Visit the
+            <a href="/api/v1/">API endpoint</a> for details.
+        </p>
+
+        <h2>Links</h2>
+        <ul>
+            <li><a href="https://github.com/DARREN-2000/OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction" target="_blank">GitHub Repository</a></li>
+            <li><a href="https://github.com/DARREN-2000/OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction/blob/master/LICENSE" target="_blank">MIT License</a></li>
+        </ul>
+    </div>
+</section>
+{% endblock %}

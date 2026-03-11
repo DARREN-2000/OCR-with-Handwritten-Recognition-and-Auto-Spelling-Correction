@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}OCR Spelling Correction – Upload{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <h1>NLP-Based OCR with Automatic Spelling Correction</h1>
+    <p class="subtitle">Upload an image of text — we'll extract and correct it for you.</p>
+</section>
+
+<section class="upload-section">
+    <form action="{{ url_for('web.upload') }}" method="POST" enctype="multipart/form-data" class="upload-form">
+        <div class="file-input-wrapper">
+            <label for="imagefile" class="file-label">
+                <span class="file-icon">📄</span>
+                <span class="file-text">Choose an image file</span>
+                <span class="file-hint">Supports JPEG, PNG, BMP, TIFF</span>
+            </label>
+            <input type="file" id="imagefile" name="imagefile" accept="image/*" required>
+            <p id="file-name" class="file-name-display"></p>
+        </div>
+        <button type="submit" class="btn btn-primary">Extract &amp; Correct Text</button>
+    </form>
+</section>
+
+<section class="features">
+    <h2>How It Works</h2>
+    <div class="feature-grid">
+        <div class="feature-card">
+            <div class="feature-icon">🖼️</div>
+            <h3>Image Pre-processing</h3>
+            <p>Grayscale conversion, denoising, and adaptive thresholding for maximum OCR accuracy.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🔤</div>
+            <h3>Tesseract OCR</h3>
+            <p>Extract raw text from your image using Tesseract's LSTM neural network engine.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📝</div>
+            <h3>NLP Tokenization</h3>
+            <p>NLTK-powered sentence and word tokenization for well-formed input to the language model.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">✅</div>
+            <h3>Spelling Correction</h3>
+            <p>LanguageTool corrects spelling, grammar, and punctuation across 5 languages.</p>
+        </div>
+    </div>
+</section>
+
+<script>
+document.getElementById('imagefile').addEventListener('change', function(e) {
+    var fileName = e.target.files[0] ? e.target.files[0].name : '';
+    document.getElementById('file-name').textContent = fileName;
+});
+</script>
+{% endblock %}

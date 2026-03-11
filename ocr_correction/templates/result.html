@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}OCR Result{% endblock %}
+
+{% block content %}
+<section class="result-section">
+    <h1>Corrected Text</h1>
+
+    <div class="result-grid">
+        <div class="result-card">
+            <h2>Uploaded Image</h2>
+            <div class="image-preview">
+                <img src="{{ img }}" alt="Uploaded image">
+            </div>
+        </div>
+
+        <div class="result-card">
+            <h2>Extracted &amp; Corrected Text</h2>
+            <div class="result-text">
+                <pre>{{ var }}</pre>
+            </div>
+            <div class="result-actions">
+                <a href="{{ url_for('web.gettext') }}" class="btn btn-secondary">⬇ Download as .txt</a>
+                <a href="{{ url_for('web.home') }}" class="btn btn-primary">↩ Process Another</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
