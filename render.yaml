@@ -4,4 +4,4 @@ services:
     runtime: docker
     plan: free
     autoDeploy: true
-    healthCheckPath: /api/v1/
+    healthCheckPath: /

@@ -19,7 +19,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
+RUN chmod +x /app/start.sh
 
 EXPOSE 5000
 
-CMD ["sh", "-c", "gunicorn app:app --bind 0.0.0.0:${PORT:-5000} --preload --timeout 120 --keep-alive 5 --log-level info"]
+CMD ["/app/start.sh"]
