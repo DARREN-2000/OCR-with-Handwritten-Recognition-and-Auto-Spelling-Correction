@@ -34,7 +34,6 @@ const tesseractLanguageByChoice = {
 };
 
 let selectedFile = null;
-let previewUrl = null;
 
 function setStatus(message, tone = "") {
     statusEl.textContent = message;
@@ -60,13 +59,6 @@ function toReadableFileSize(sizeInBytes) {
     return `${value.toFixed(unitIndex === 0 ? 0 : 2)} ${units[unitIndex]}`;
 }
 
-function clearPreviewUrl() {
-    if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-        previewUrl = null;
-    }
-}
-
 function clearOutputs() {
     rawTextEl.value = "";
     correctedTextEl.value = "";
@@ -85,13 +77,22 @@ function updateFileDetails(file) {
     selectedFileSizeEl.textContent = toReadableFileSize(file.size);
 }
 
-function setSelectedFile(file) {
+function fileToDataUrl(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error("Failed to read file for preview."));
+        reader.readAsDataURL(file);
+    });
+}
+
+async function setSelectedFile(file) {
     clearOutputs();
 
     if (!file) {
         selectedFile = null;
         imageInput.value = "";
-        clearPreviewUrl();
+        imagePreview.removeAttribute("src");
         imagePreview.hidden = true;
         previewPlaceholder.hidden = false;
         previewPlaceholder.textContent = "No image selected yet.";
@@ -107,14 +108,24 @@ function setSelectedFile(file) {
 
     selectedFile = file;
     updateFileDetails(file);
-
-    clearPreviewUrl();
-    previewUrl = URL.createObjectURL(file);
-    imagePreview.src = previewUrl;
-    imagePreview.hidden = false;
-    previewPlaceholder.hidden = true;
-
-    setStatus("Image selected. Configure options and run OCR.");
+    try {
+        const previewDataUrl = await fileToDataUrl(file);
+        if (typeof previewDataUrl !== "string" || !previewDataUrl.startsWith("data:image/")) {
+            throw new Error("Generated preview is not a valid image.");
+        }
+        imagePreview.src = previewDataUrl;
+        imagePreview.hidden = false;
+        previewPlaceholder.hidden = true;
+        setStatus("Image selected. Configure options and run OCR.");
+    } catch (error) {
+        selectedFile = null;
+        imageInput.value = "";
+        imagePreview.removeAttribute("src");
+        imagePreview.hidden = true;
+        previewPlaceholder.hidden = false;
+        updateFileDetails(null);
+        setStatus(`Preview failed: ${error.message}`, "error");
+    }
 }
 
 function applyLanguageToolCorrections(text, matches) {
@@ -131,7 +142,7 @@ function applyLanguageToolCorrections(text, matches) {
         const end = match.offset + match.length;
         const replacement = match.replacements?.[0]?.value;
 
-        if (!Number.isFinite(start) || !Number.isFinite(end) || start < cursor || start > text.length) {
+        if (!Number.isFinite(start) || !Number.isFinite(end) || start < cursor || start > text.length || end > text.length) {
             continue;
         }
 
@@ -155,15 +166,23 @@ function fetchWithTimeout(url, options, timeoutMs = 25000) {
 async function correctText(rawText, selectedLanguage) {
     const params = new URLSearchParams();
     params.append("text", rawText);
-    params.append("language", selectedLanguage === "auto" ? "auto" : selectedLanguage);
+    params.append("language", selectedLanguage);
 
-    const response = await fetchWithTimeout("https://api.languagetool.org/v2/check", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: params.toString()
-    });
+    let response;
+    try {
+        response = await fetchWithTimeout("https://api.languagetool.org/v2/check", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: params.toString()
+        });
+    } catch (error) {
+        if (error && error.name === "AbortError") {
+            throw new Error("Language correction request timed out. Please check your connection and try again.");
+        }
+        throw error;
+    }
 
     if (!response.ok) {
         if (response.status === 429) {
