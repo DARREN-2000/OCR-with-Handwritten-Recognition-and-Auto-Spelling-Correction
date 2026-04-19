@@ -299,6 +299,24 @@ pytest --cov=ocr_correction tests/
 
 ## Deployment
 
+### GitHub Pages (Static Web App)
+
+This repository includes a static web app in `docs/` that runs directly in the browser and can be hosted on GitHub Pages.
+
+- OCR is performed in-browser using **Tesseract.js**
+- Spelling and grammar correction uses the public **LanguageTool API**
+- No Flask server is required for the GitHub Pages version
+
+#### Enable GitHub Pages
+
+1. Go to **Settings → Pages** in this repository.
+2. Set **Source** to **GitHub Actions**.
+3. Push to `main` or `master` (or run the **Deploy GitHub Pages** workflow manually).
+
+After deployment, the app will be available at:
+
+`https://DARREN-2000.github.io/OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction/`
+
 ### Heroku
 
 This project includes Heroku configuration files (`Procfile`, `Aptfile`, `runtime.txt`) for one-click deployment:

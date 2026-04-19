@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR + Auto Spelling Correction (GitHub Pages)</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <header class="hero">
+        <h1>OCR + Auto Spelling Correction</h1>
+        <p>Static web app for GitHub Pages using in-browser OCR and language correction.</p>
+    </header>
+
+    <main class="container">
+        <section class="card">
+            <label class="label" for="imageInput">Choose image</label>
+            <input id="imageInput" type="file" accept="image/*">
+
+            <label class="label" for="languageSelect">Language</label>
+            <select id="languageSelect">
+                <option value="auto">Auto</option>
+                <option value="en-US">English</option>
+                <option value="fr">French</option>
+                <option value="de-DE">German</option>
+                <option value="es">Spanish</option>
+                <option value="pt-PT">Portuguese</option>
+            </select>
+
+            <button id="runBtn" type="button">Extract & Correct</button>
+            <p id="status" class="status"></p>
+        </section>
+
+        <section class="grid">
+            <article class="card">
+                <h2>Preview</h2>
+                <img id="preview" alt="Selected image preview">
+            </article>
+
+            <article class="card">
+                <h2>Raw OCR Text</h2>
+                <textarea id="rawText" rows="12" readonly></textarea>
+            </article>
+
+            <article class="card">
+                <h2>Corrected Text</h2>
+                <textarea id="correctedText" rows="12" readonly></textarea>
+                <div class="actions">
+                    <button id="copyBtn" type="button">Copy</button>
+                    <button id="downloadBtn" type="button">Download .txt</button>
+                </div>
+            </article>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>
+            Public LanguageTool API may rate-limit heavy usage.
+            <a href="https://github.com/DARREN-2000/OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction" target="_blank" rel="noopener noreferrer">Repository</a>
+        </p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="./app.js"></script>
+</body>
+</html>
