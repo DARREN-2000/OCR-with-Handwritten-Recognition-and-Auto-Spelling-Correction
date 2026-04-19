@@ -3,59 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Run OCR and automatic spelling correction directly in your browser.">
     <title>OCR + Auto Spelling Correction (GitHub Pages)</title>
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
     <header class="hero">
-        <h1>OCR + Auto Spelling Correction</h1>
-        <p>Static web app for GitHub Pages using in-browser OCR and language correction.</p>
+        <div class="hero-inner">
+            <h1>OCR + Auto Spelling Correction</h1>
+            <p>Upload an image, extract text in-browser, and get cleaner text with one click.</p>
+            <div class="hero-meta">
+                <span class="pill">No server required</span>
+                <span class="pill">Runs on GitHub Pages</span>
+                <span class="pill">Multilingual OCR</span>
+            </div>
+        </div>
     </header>
 
-    <main class="container">
-        <section class="card">
-            <label class="label" for="imageInput">Choose image</label>
-            <input id="imageInput" type="file" accept="image/*">
+    <main class="container" aria-describedby="status">
+        <section class="card stack-lg">
+            <h2 class="section-title">1) Upload image</h2>
 
-            <label class="label" for="languageSelect">Language</label>
-            <select id="languageSelect">
-                <option value="auto">Auto</option>
-                <option value="en-US">English</option>
-                <option value="fr">French</option>
-                <option value="de-DE">German</option>
-                <option value="es">Spanish</option>
-                <option value="pt-PT">Portuguese</option>
-            </select>
+            <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Upload image by clicking or dragging and dropping">
+                <p class="dropzone-title">Drag & drop an image here</p>
+                <p class="dropzone-subtitle">or click to choose a file (PNG, JPG, JPEG, BMP, TIFF, WEBP)</p>
+                <input id="imageInput" type="file" accept="image/*" class="visually-hidden">
+                <button id="browseBtn" type="button" class="secondary">Browse files</button>
+            </div>
 
-            <button id="runBtn" type="button">Extract & Correct</button>
-            <p id="status" class="status"></p>
+            <div class="two-col">
+                <article class="preview-card">
+                    <h3>Preview</h3>
+                    <img id="imagePreview" alt="Selected image preview" hidden>
+                    <p id="previewPlaceholder" class="muted">No image selected yet.</p>
+                </article>
+
+                <article class="preview-card">
+                    <h3>File details</h3>
+                    <dl class="meta-list">
+                        <div><dt>Name</dt><dd id="selectedFileName">—</dd></div>
+                        <div><dt>Type</dt><dd id="selectedFileType">—</dd></div>
+                        <div><dt>Size</dt><dd id="selectedFileSize">—</dd></div>
+                    </dl>
+                </article>
+            </div>
         </section>
 
-        <section class="grid">
-            <article class="card">
-                <h2>Selected File</h2>
-                <p id="selectedFileName">No file selected.</p>
-            </article>
+        <section class="card stack">
+            <h2 class="section-title">2) OCR and correction options</h2>
+            <div class="controls-grid">
+                <label class="control-label" for="languageSelect">OCR / correction language</label>
+                <select id="languageSelect">
+                    <option value="auto">Auto-detect</option>
+                    <option value="en-US">English</option>
+                    <option value="fr">French</option>
+                    <option value="de-DE">German</option>
+                    <option value="es">Spanish</option>
+                    <option value="pt-PT">Portuguese</option>
+                </select>
 
-            <article class="card">
-                <h2>Raw OCR Text</h2>
-                <textarea id="rawText" rows="12" readonly></textarea>
-            </article>
+                <label class="checkbox-row" for="enableCorrection">
+                    <input id="enableCorrection" type="checkbox" checked>
+                    Enable spelling and grammar correction
+                </label>
+            </div>
 
-            <article class="card">
-                <h2>Corrected Text</h2>
-                <textarea id="correctedText" rows="12" readonly></textarea>
-                <div class="actions">
-                    <button id="copyBtn" type="button">Copy</button>
-                    <button id="downloadBtn" type="button">Download .txt</button>
+            <div class="actions-row">
+                <button id="runBtn" type="button">Extract & Correct</button>
+                <button id="clearBtn" type="button" class="secondary">Clear</button>
+            </div>
+
+            <div class="progress-wrap" aria-hidden="true">
+                <div id="progressBar" class="progress-bar"></div>
+            </div>
+            <p id="status" class="status" role="status" aria-live="polite">Ready.</p>
+        </section>
+
+        <section class="grid-two">
+            <article class="card stack">
+                <div class="panel-head">
+                    <h2 class="section-title">3) Raw OCR text</h2>
+                    <button id="copyRawBtn" type="button" class="secondary tiny">Copy</button>
                 </div>
+                <textarea id="rawText" rows="14" placeholder="Raw OCR result appears here." readonly></textarea>
+                <button id="downloadRawBtn" type="button" class="secondary">Download raw .txt</button>
+            </article>
+
+            <article class="card stack">
+                <div class="panel-head">
+                    <h2 class="section-title">4) Corrected text</h2>
+                    <button id="copyBtn" type="button" class="secondary tiny">Copy</button>
+                </div>
+                <textarea id="correctedText" rows="14" placeholder="Corrected text appears here." readonly></textarea>
+                <button id="downloadBtn" type="button" class="secondary">Download corrected .txt</button>
             </article>
         </section>
     </main>
 
     <footer class="footer">
         <p>
-            Public LanguageTool API may rate-limit heavy usage.
+            OCR runs in your browser using Tesseract.js. Correction uses public LanguageTool API and may be rate-limited.
             <a href="https://github.com/DARREN-2000/OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction" target="_blank" rel="noopener noreferrer">Repository</a>
         </p>
     </footer>
