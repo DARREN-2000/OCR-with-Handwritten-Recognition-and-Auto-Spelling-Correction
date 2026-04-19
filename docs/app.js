@@ -2,7 +2,7 @@ const imageInput = document.getElementById("imageInput");
 const languageSelect = document.getElementById("languageSelect");
 const runBtn = document.getElementById("runBtn");
 const statusEl = document.getElementById("status");
-const previewEl = document.getElementById("preview");
+const selectedFileNameEl = document.getElementById("selectedFileName");
 const rawTextEl = document.getElementById("rawText");
 const correctedTextEl = document.getElementById("correctedText");
 const copyBtn = document.getElementById("copyBtn");
@@ -75,13 +75,11 @@ imageInput.addEventListener("change", (event) => {
     correctedTextEl.value = "";
 
     if (!file) {
-        previewEl.style.display = "none";
+        selectedFileNameEl.textContent = "No file selected.";
         return;
     }
 
-    const fileUrl = URL.createObjectURL(file);
-    previewEl.src = fileUrl;
-    previewEl.style.display = "block";
+    selectedFileNameEl.textContent = file.name;
     setStatus("Image selected.");
 });
 

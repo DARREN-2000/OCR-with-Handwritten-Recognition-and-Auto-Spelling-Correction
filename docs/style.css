@@ -83,11 +83,10 @@ button:disabled {
     gap: 1rem;
 }
 
-#preview {
-    width: 100%;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    display: none;
+#selectedFileName {
+    margin: 0;
+    color: var(--muted);
+    word-break: break-word;
 }
 
 textarea {
