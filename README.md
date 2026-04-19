@@ -65,7 +65,7 @@ This project implements an **NLP-based automatic spelling correction system** th
 | 📝 **NLP Tokenization** | NLTK-powered sentence and word segmentation for well-formed input |
 | 🌍 **Multilingual Support** | Automatic language detection across 5 languages (EN, FR, DE, ES, PT) |
 | ✅ **Spelling & Grammar** | LanguageTool rule-based correction for spelling, grammar, and punctuation |
-| 🌐 **Web Interface** | Clean, responsive UI for uploading images and viewing corrected text |
+| 🌐 **Web Interface** | Clean, responsive Flask UI plus a standalone GitHub Pages app with drag/drop upload and live OCR progress |
 | 🔌 **REST API** | Versioned JSON API at `/api/v1/` for programmatic integration |
 | 📥 **Download Output** | Export corrected text as a downloadable `.txt` file |
 
@@ -306,6 +306,7 @@ This repository includes a static web app in `docs/` that runs directly in the b
 - OCR is performed in-browser using **Tesseract.js**
 - Spelling and grammar correction uses the public **LanguageTool API**
 - No Flask server is required for the GitHub Pages version
+- Includes drag-and-drop upload, image preview, progress indicator, copy/download actions, and graceful correction fallback
 
 #### Enable GitHub Pages
 
