@@ -29,7 +29,11 @@
 ## Table of Contents
 
 - [Overview](#overview)
+- [Live Deployment Status](#live-deployment-status)
 - [Key Features](#key-features)
+- [Screenshots](#screenshots)
+- [Short Demo Videos](#short-demo-videos)
+- [Production Readiness Gaps & Mitigations](#production-readiness-gaps--mitigations)
 - [Architecture](#architecture)
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
@@ -56,6 +60,23 @@ This project implements an **NLP-based automatic spelling correction system** th
 
 ---
 
+## Live Deployment Status
+
+**Web app URL (GitHub Pages):**  
+`https://DARREN-2000.github.io/OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction/`
+
+### Is it deployed right now?
+
+- Latest recorded Pages workflow run (`Deploy GitHub Pages`, run id `24640986812`) failed because GitHub Pages was not enabled in repository settings at the time.
+- This repository now includes a hardened Pages workflow configuration (`actions/configure-pages@v5` with `enablement: true`) to support setup via Actions.
+
+### Can I start the web app now?
+
+- **If the URL opens:** yes, you can start using it immediately.
+- **If the URL does not open yet:** run the **Deploy GitHub Pages** workflow once (or push to `main`/`master`) and then open the URL above.
+
+---
+
 ## Key Features
 
 | Feature | Description |
@@ -68,6 +89,43 @@ This project implements an **NLP-based automatic spelling correction system** th
 | 🌐 **Web Interface** | Clean, responsive Flask UI plus a standalone GitHub Pages app with drag/drop upload and live OCR progress |
 | 🔌 **REST API** | Versioned JSON API at `/api/v1/` for programmatic integration |
 | 📥 **Download Output** | Export corrected text as a downloadable `.txt` file |
+
+---
+
+## Screenshots
+
+### GitHub Pages app (latest UI)
+
+![GitHub Pages OCR app full view](docs/assets/screenshots/pages-full-home.png)
+![GitHub Pages OCR app top viewport](docs/assets/screenshots/pages-viewport-top.png)
+![GitHub Pages OCR app mid viewport](docs/assets/screenshots/pages-viewport-mid.png)
+
+---
+
+## Short Demo Videos
+
+> Demo clips are embedded as lightweight GIFs for easy preview in GitHub.
+
+### End-to-end flow
+
+![GitHub Pages end-to-end demo](docs/assets/videos/pages-demo-flow.gif)
+
+### Mobile-style walkthrough
+
+![GitHub Pages mobile-style demo](docs/assets/videos/pages-demo-mobile.gif)
+
+---
+
+## Production Readiness Gaps & Mitigations
+
+| Gap seen in similar tools | Mitigation in this project |
+|---|---|
+| Confusing user flow | Guided 4-step UI with clear actions and status feedback |
+| Poor upload UX | Drag/drop + file picker + preview + file metadata |
+| Weak runtime feedback | Live progress bar and contextual status messages |
+| Fragile correction dependency | Graceful fallback to OCR text when LanguageTool fails/rate-limits |
+| No easy export workflow | One-click copy/download for raw and corrected text |
+| Unclear deployment state | Dedicated Pages workflow and documented live URL/run behavior |
 
 ---
 
@@ -156,8 +214,11 @@ Image Upload
 │   ├── 3.jpeg
 │   └── 4.jpeg
 ├── docs/
+│   ├── assets/
+│   │   ├── screenshots/         #   README screenshots for web app
+│   │   └── videos/              #   README short demo clips (GIFs)
 │   ├── notebooks/
-│   │   └── tesseract.ipynb     #   Jupyter notebook demo
+│   │   └── tesseract.ipynb      #   Jupyter notebook demo
 │   └── OCR Detection(Final).pptx
 ├── .github/
 │   └── workflows/
@@ -311,10 +372,11 @@ This repository includes a static web app in `docs/` that runs directly in the b
 #### Enable GitHub Pages
 
 1. Go to **Settings → Pages** in this repository.
-2. Set **Source** to **GitHub Actions**.
-3. Push to `main` or `master` (or run the **Deploy GitHub Pages** workflow manually).
+2. Set **Source** to **GitHub Actions** (one-time setting).
+3. Push to `main` or `master` (or run **Deploy GitHub Pages** manually from Actions).
+4. Wait for a successful run in **Actions → Deploy GitHub Pages**.
 
-After deployment, the app will be available at:
+After deployment, the app is available at:
 
 `https://DARREN-2000.github.io/OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction/`
 
