@@ -315,7 +315,7 @@ This repository includes a static web app in `docs/` that runs directly in the b
 
 After deployment, the app will be available at:
 
-`https://DARREN-2000.github.io/OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction/`
+`https://<USERNAME>.github.io/<REPOSITORY-NAME>/`
 
 ### Free Demo Deployment (Render)
 
