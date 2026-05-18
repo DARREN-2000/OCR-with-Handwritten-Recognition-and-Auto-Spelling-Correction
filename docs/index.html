@@ -1,66 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OCR + Auto Spelling Correction (GitHub Pages)</title>
-    <link rel="stylesheet" href="./style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OCR + Auto Spelling Correction — Live Demo</title>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; color: #333; }
+  header { background: #1a237e; color: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; }
+  header h1 { font-size: 1.3rem; }
+  header a { color: #90caf9; font-size: 0.9rem; text-decoration: none; }
+  .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
+  .upload-zone { border: 2px dashed #1a237e; border-radius: 12px; padding: 40px; text-align: center; background: white; cursor: pointer; transition: background 0.2s; }
+  .upload-zone:hover { background: #e8eaf6; }
+  .upload-zone input { display: none; }
+  .upload-zone p { color: #666; margin-top: 8px; font-size: 0.9rem; }
+  .panels { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 24px; }
+  .panel { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .panel h3 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: #1a237e; margin-bottom: 12px; border-bottom: 2px solid #e8eaf6; padding-bottom: 8px; }
+  #imagePreview { width: 100%; border-radius: 8px; max-height: 260px; object-fit: contain; display: none; }
+  #rawText, #correctedText { min-height: 200px; font-size: 0.95rem; line-height: 1.6; white-space: pre-wrap; color: #444; }
+  .spinner { display: none; text-align: center; padding: 40px 0; }
+  .spinner::after { content: ''; display: inline-block; width: 36px; height: 36px; border: 4px solid #e8eaf6; border-top-color: #1a237e; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .status { font-size: 0.85rem; color: #666; margin-top: 6px; min-height: 20px; }
+  .btn { display: inline-block; margin-top: 14px; background: #1a237e; color: white; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-size: 0.95rem; }
+  .btn:hover { background: #283593; }
+  .highlight { background: #fff9c4; padding: 0 2px; border-radius: 2px; }
+  footer { text-align: center; padding: 30px; color: #999; font-size: 0.85rem; margin-top: 40px; }
+  @media (max-width: 768px) { .panels { grid-template-columns: 1fr; } }
+</style>
 </head>
 <body>
-    <header class="hero">
-        <h1>OCR + Auto Spelling Correction</h1>
-        <p>Static web app for GitHub Pages using in-browser OCR and language correction.</p>
-    </header>
 
-    <main class="container">
-        <section class="card">
-            <label class="label" for="imageInput">Choose image</label>
-            <input id="imageInput" type="file" accept="image/*">
+<header>
+  <h1>🔍 NLP-Based OCR + Auto Spelling Correction — Live Demo</h1>
+  <a href="https://github.com/DARREN-2000/OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction" target="_blank">View on GitHub ↗</a>
+</header>
 
-            <label class="label" for="languageSelect">Language</label>
-            <select id="languageSelect">
-                <option value="auto">Auto</option>
-                <option value="en-US">English</option>
-                <option value="fr">French</option>
-                <option value="de-DE">German</option>
-                <option value="es">Spanish</option>
-                <option value="pt-PT">Portuguese</option>
-            </select>
+<div class="container">
+  <div class="upload-zone" id="dropZone">
+    <label for="fileInput" style="cursor:pointer">
+      <div style="font-size:2.5rem">📄</div>
+      <strong>Drop an image here or click to upload</strong>
+      <p>Supports JPEG, PNG, BMP, TIFF — handwritten or printed text</p>
+    </label>
+    <input type="file" id="fileInput" accept="image/*">
+    <br>
+    <button class="btn" onclick="document.getElementById('fileInput').click()">Choose Image</button>
+  </div>
 
-            <button id="runBtn" type="button">Extract & Correct</button>
-            <p id="status" class="status"></p>
-        </section>
+  <div class="spinner" id="spinner"></div>
+  <p class="status" id="status"></p>
 
-        <section class="grid">
-            <article class="card">
-                <h2>Selected File</h2>
-                <p id="selectedFileName">No file selected.</p>
-            </article>
+  <div class="panels" id="panels" style="display:none">
+    <div class="panel">
+      <h3>📷 Uploaded Image</h3>
+      <img id="imagePreview" alt="Preview">
+    </div>
+    <div class="panel">
+      <h3>🔤 Raw OCR Text</h3>
+      <div id="rawText"></div>
+    </div>
+    <div class="panel">
+      <h3>✅ Corrected Text</h3>
+      <div id="correctedText"></div>
+    </div>
+  </div>
+</div>
 
-            <article class="card">
-                <h2>Raw OCR Text</h2>
-                <textarea id="rawText" rows="12" readonly></textarea>
-            </article>
+<footer>
+  Static demo — OCR runs in-browser via <strong>Tesseract.js</strong>, corrections via <strong>LanguageTool public API</strong>.<br>
+  For the full Flask application, see the <a href="https://github.com/DARREN-2000/OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction">GitHub repo</a>.
+</footer>
 
-            <article class="card">
-                <h2>Corrected Text</h2>
-                <textarea id="correctedText" rows="12" readonly></textarea>
-                <div class="actions">
-                    <button id="copyBtn" type="button">Copy</button>
-                    <button id="downloadBtn" type="button">Download .txt</button>
-                </div>
-            </article>
-        </section>
-    </main>
+<script>
+const fileInput = document.getElementById('fileInput');
+const spinner = document.getElementById('spinner');
+const status = document.getElementById('status');
+const panels = document.getElementById('panels');
 
-    <footer class="footer">
-        <p>
-            Public LanguageTool API may rate-limit heavy usage.
-            <a href="https://github.com/DARREN-2000/OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction" target="_blank" rel="noopener noreferrer">Repository</a>
-        </p>
-    </footer>
+fileInput.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (file) processImage(file);
+});
 
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-    <script src="./app.js"></script>
+const dropZone = document.getElementById('dropZone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.background = '#e8eaf6'; });
+dropZone.addEventListener('dragleave', () => { dropZone.style.background = 'white'; });
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.style.background = 'white';
+  const file = e.dataTransfer.files[0];
+  if (file) processImage(file);
+});
+
+async function processImage(file) {
+  panels.style.display = 'none';
+  spinner.style.display = 'block';
+  status.textContent = 'Loading Tesseract OCR engine...';
+
+  const imgURL = URL.createObjectURL(file);
+  document.getElementById('imagePreview').src = imgURL;
+  document.getElementById('imagePreview').style.display = 'block';
+
+  try {
+    const worker = await Tesseract.createWorker('eng', 1, {
+      logger: m => { if (m.status === 'recognizing text') status.textContent = `Recognizing: ${Math.round(m.progress * 100)}%`; }
+    });
+    const { data: { text } } = await worker.recognize(file);
+    await worker.terminate();
+
+    document.getElementById('rawText').textContent = text.trim() || '(no text detected)';
+    status.textContent = 'OCR complete. Running spelling correction...';
+
+    const corrected = await correctText(text.trim());
+    document.getElementById('correctedText').innerHTML = corrected;
+
+    status.textContent = '✅ Done.';
+    spinner.style.display = 'none';
+    panels.style.display = 'grid';
+  } catch (err) {
+    spinner.style.display = 'none';
+    status.textContent = '❌ Error: ' + err.message;
+  }
+}
+
+async function correctText(text) {
+  if (!text) return '(no text to correct)';
+  try {
+    const params = new URLSearchParams({ text, language: 'en-US' });
+    const res = await fetch('https://api.languagetool.org/v2/check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params
+    });
+    const data = await res.json();
+    let result = text;
+    const matches = data.matches.sort((a, b) => b.offset - a.offset);
+    for (const match of matches) {
+      if (match.replacements.length > 0) {
+        const replacement = match.replacements[0].value;
+        result = result.slice(0, match.offset) +
+          `<span class="highlight" title="${match.message}">${replacement}</span>` +
+          result.slice(match.offset + match.length);
+      }
+    }
+    return result || text;
+  } catch {
+    return text + '\n\n<em style="color:#999">(LanguageTool API unavailable — showing raw OCR text)</em>';
+  }
+}
+</script>
 </body>
 </html>
