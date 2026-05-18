@@ -54,6 +54,7 @@
 This project implements an **NLP-based automatic spelling correction system** that processes scanned or handwritten documents end-to-end. It combines **Tesseract OCR** with an NLP pipeline — including **NLTK tokenization**, **automatic language detection**, and **LanguageTool language-model correction** — to deliver accurate text extraction and correction through both a **web interface** and a **REST API**.
 
 ![Demo](docs/assets/demo.png)
+_Demo screenshot placeholder; add `docs/assets/demo.png` before release._
 
 > **Benchmark:** Tested against a 500-document multilingual test set, this pipeline achieved an **89% improvement in spelling-correction accuracy** compared to raw Tesseract output.
 
