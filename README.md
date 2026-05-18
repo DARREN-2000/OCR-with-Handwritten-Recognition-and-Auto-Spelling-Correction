@@ -315,19 +315,32 @@ This repository includes a static web app in `docs/` that runs directly in the b
 
 After deployment, the app will be available at:
 
-`https://DARREN-2000.github.io/OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction/`
+`https://<USERNAME>.github.io/<REPOSITORY-NAME>/`
 
-### Heroku
+### Free Demo Deployment (Render)
 
-This project includes Heroku configuration files (`Procfile`, `Aptfile`, `runtime.txt`) for one-click deployment:
+This repository now includes a ready-to-deploy **Render Blueprint** (`render.yaml`) and a production **Dockerfile**, so you can deploy a free demo without custom setup.
 
 ```bash
-heroku create your-app-name
-heroku buildpacks:add --index 1 heroku-community/apt
-git push heroku master
+# 1) Push this repository to your GitHub account
+# 2) Go to https://render.com and sign in
+# 3) New +  -> Blueprint
+# 4) Select your fork/repository
+# 5) Click "Apply"
 ```
 
-### Docker (Optional)
+Render will automatically:
+
+- Build the app using `Dockerfile` (including Tesseract + OCR system dependencies)
+- Start the Flask app with Gunicorn
+- Expose a public URL you can share for demos
+
+After deploy, open:
+
+- `/` for the web UI demo
+- `/api/v1/` for API status/metadata
+
+### Docker (Optional Local/Other Hosts)
 
 ```dockerfile
 FROM python:3.11-slim
