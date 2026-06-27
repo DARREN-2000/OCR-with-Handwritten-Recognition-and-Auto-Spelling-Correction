@@ -3,12 +3,12 @@ Web UI routes for the OCR Spelling Correction System.
 """
 
 import base64
+import io
 import logging
 
 from flask import Blueprint, Response, render_template, request
 from PIL import Image
 
-from ocr_correction.config import OUTPUT_FILE
 from ocr_correction.pipeline import maybe_resize, ocr_pipeline
 
 logger = logging.getLogger(__name__)
@@ -35,7 +35,7 @@ def upload():
         imagefile = request.files.get("imagefile", "")
         raw_bytes = request.files["imagefile"].read()
 
-        pil_img = Image.open(imagefile)
+        pil_img = Image.open(io.BytesIO(raw_bytes))
         pil_img = maybe_resize(pil_img, raw_bytes)
 
         ext = (
@@ -45,9 +45,6 @@ def upload():
         )
 
         _, corrected_text, _ = ocr_pipeline(pil_img)
-
-        with open(OUTPUT_FILE, "w", encoding="utf-8") as fh:
-            fh.write(corrected_text)
 
         img_b64 = (
             "data:image/" + ext + ";base64,"
@@ -60,11 +57,10 @@ def upload():
         return render_template("error.html")
 
 
-@web_bp.route("/gettext")
+@web_bp.route("/gettext", methods=["POST"])
 def gettext():
-    """Download the last corrected output as a text file."""
-    with open(OUTPUT_FILE, encoding="utf-8") as fh:
-        src = fh.read()
+    """Download the corrected output as a text file."""
+    src = request.form.get("text_content", "")
     return Response(
         src,
         mimetype="text/plain",
