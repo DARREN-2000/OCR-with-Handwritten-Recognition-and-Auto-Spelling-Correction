@@ -5,10 +5,8 @@ Flask application factory with modular OCR pipeline.
 """
 
 import os
-import logging
 
 from flask import Flask
-from flask_restful import Api
 
 __version__ = "2.0.0"
 
