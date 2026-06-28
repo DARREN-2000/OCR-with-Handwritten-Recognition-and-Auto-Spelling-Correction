@@ -2,12 +2,11 @@
 REST API routes for the OCR Spelling Correction System.
 """
 
-import os
 import logging
 
 import werkzeug
-from flask import Blueprint, current_app
-from flask_restful import Resource, reqparse
+from flask import Blueprint
+from flask_restful import Api, Resource, reqparse
 from PIL import Image
 
 from ocr_correction.config import LANGUAGE_MAP
@@ -16,6 +15,7 @@ from ocr_correction.pipeline import ocr_pipeline
 logger = logging.getLogger(__name__)
 
 api_bp = Blueprint("api", __name__)
+api = Api(api_bp)
 
 _parser = reqparse.RequestParser()
 _parser.add_argument(
@@ -56,12 +56,9 @@ class OCRCorrectionAPI(Resource):
 
         photo = data["file"]
         lang_hint = data.get("lang") or "auto"
-        upload_dir = current_app.config.get("UPLOAD_FOLDER", "./static/images/")
-        save_path = os.path.join(upload_dir, photo.filename)
 
         try:
-            photo.save(save_path)
-            pil_img = Image.open(save_path)
+            pil_img = Image.open(photo.stream)
             raw_text, corrected_text, detected_lang = ocr_pipeline(
                 pil_img, lang_hint
             )
@@ -76,6 +73,5 @@ class OCRCorrectionAPI(Resource):
             logger.exception("API processing error: %s", exc)
             return {"error": "Processing failed", "detail": str(exc)}, 500
 
-        finally:
-            if os.path.exists(save_path):
-                os.remove(save_path)
+
+api.add_resource(OCRCorrectionAPI, "/api/v1/")

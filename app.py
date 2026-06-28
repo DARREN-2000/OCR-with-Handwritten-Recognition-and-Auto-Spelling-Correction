@@ -11,7 +11,15 @@ Usage:
     gunicorn app:app --preload      # Production (Gunicorn)
 """
 
+import logging
+
 from ocr_correction import create_app
+
+# Logging setup for the application
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s  %(levelname)-8s  %(message)s",
+)
 
 app = create_app()
 

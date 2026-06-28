@@ -7,6 +7,7 @@ language detection, and LanguageTool correction into a single pipeline.
 
 import os
 import sys
+import functools
 import logging
 from math import floor
 
@@ -57,8 +58,7 @@ def preprocess_image(pil_img: Image.Image) -> Image.Image:
 
     Returns a PIL Image ready for Tesseract.
     """
-    arr = np.array(pil_img)
-    gray = cv2.cvtColor(arr, cv2.COLOR_RGB2GRAY) if arr.ndim == 3 else arr
+    gray = np.array(pil_img.convert("L"))
     denoised = cv2.fastNlMeansDenoising(gray, h=10)
     binary = cv2.adaptiveThreshold(
         denoised,
@@ -104,16 +104,22 @@ def tokenize(text: str) -> str:
     return "\n".join(" ".join(word_tokenize(s)) for s in sentences)
 
 
+@functools.lru_cache(maxsize=4)
+def get_language_tool(lang_code: str):
+    """
+    Get a cached instance of LanguageTool to avoid booting a new JVM process
+    on every single request.
+    """
+    return language_tool_python.LanguageTool(lang_code)
+
+
 def apply_language_model(text: str, lang_code: str = DEFAULT_LANG_CODE) -> str:
     """
     Run LanguageTool's grammar / spelling language model over *text*
     and return the corrected string.
     """
-    tool = language_tool_python.LanguageTool(lang_code)
-    try:
-        return tool.correct(text)
-    finally:
-        tool.close()
+    tool = get_language_tool(lang_code)
+    return tool.correct(text)
 
 
 def ocr_pipeline(pil_img: Image.Image, lang_hint: str = "auto") -> tuple:
