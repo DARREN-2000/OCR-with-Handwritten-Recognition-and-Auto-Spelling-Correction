@@ -13,3 +13,6 @@ Flask-RESTful>=0.3
 nltk>=3.8
 langdetect>=1.0
 language-tool-python>=2.7
+pydantic-settings>=2.0
+pydantic>=2.0
+structlog>=23.0.0
