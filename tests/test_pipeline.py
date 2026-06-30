@@ -11,9 +11,11 @@ from ocr_correction.pipeline import (
 )
 from ocr_correction.ports import BaseOCREngine, BaseNLPProcessor, BaseSpellingEngine
 
+
 class MockOCREngine(BaseOCREngine):
     def extract_text(self, image: Image.Image) -> str:
         return "Mock extracted text."
+
 
 class MockNLPProcessor(BaseNLPProcessor):
     def tokenize(self, text: str) -> str:
@@ -22,9 +24,11 @@ class MockNLPProcessor(BaseNLPProcessor):
     def detect_language(self, text: str) -> str:
         return settings.default_lang_code
 
+
 class MockSpellingEngine(BaseSpellingEngine):
     def correct(self, text: str, lang_code: str) -> str:
         return "Mock corrected text."
+
 
 class TestPreprocessImage:
     """Tests for the preprocess_image function."""

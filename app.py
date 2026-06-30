@@ -11,14 +11,14 @@ Usage:
     gunicorn app:app --preload      # Production (Gunicorn)
 """
 
+from ocr_correction import create_app
+import structlog
 import sys
 import os
 
 # Add src/ to the path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
 
-import structlog
-from ocr_correction import create_app
 
 structlog.configure(
     processors=[

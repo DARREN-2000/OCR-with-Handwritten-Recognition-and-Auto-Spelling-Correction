@@ -29,6 +29,7 @@ if sys.platform == "win32":
     if os.path.exists(_win_path):
         pytesseract.pytesseract.tesseract_cmd = _win_path
 
+
 class TesseractAdapter(BaseOCREngine):
     """Adapter for Tesseract OCR."""
 
@@ -37,6 +38,7 @@ class TesseractAdapter(BaseOCREngine):
             return pytesseract.image_to_string(image, config=settings.ocr_config)
         except Exception as exc:
             raise EngineError(f"Tesseract extraction failed: {exc}") from exc
+
 
 class NLTKProcessor(BaseNLPProcessor):
     """Adapter for NLTK tokenization and langdetect."""
@@ -60,10 +62,12 @@ class NLTKProcessor(BaseNLPProcessor):
         except Exception as exc:
             raise LanguageDetectionError(f"Language detection failed: {exc}") from exc
 
+
 @functools.lru_cache(maxsize=4)
 def _get_cached_language_tool(lang_code: str):
     """Module-level cache to ensure LanguageTool is shared across instances."""
     return language_tool_python.LanguageTool(lang_code)
+
 
 class LanguageToolAdapter(BaseSpellingEngine):
     """Adapter for LanguageTool spelling and grammar correction."""

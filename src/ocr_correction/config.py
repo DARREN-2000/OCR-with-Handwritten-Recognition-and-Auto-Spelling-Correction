@@ -6,6 +6,7 @@ from typing import Dict
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 
+
 class Settings(BaseSettings):
     """Application settings, loaded from environment variables."""
 
@@ -14,7 +15,9 @@ class Settings(BaseSettings):
     resize_factor: float = Field(default=0.9, description="Factor to resize image by.")
 
     # Tesseract OCR
-    ocr_config: str = Field(default="--oem 1 --psm 3", description="Tesseract configuration string.")
+    ocr_config: str = Field(
+        default="--oem 1 --psm 3",
+        description="Tesseract configuration string.")
 
     # Language support
     language_map: Dict[str, str] = Field(
@@ -30,6 +33,7 @@ class Settings(BaseSettings):
     default_lang_code: str = Field(default="en-US", description="Fallback language code.")
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+
 
 settings = Settings()
 

@@ -18,6 +18,7 @@ from ocr_correction.ports import BaseOCREngine, BaseNLPProcessor, BaseSpellingEn
 
 logger = structlog.get_logger(__name__)
 
+
 def preprocess_image(pil_img: Image.Image) -> Image.Image:
     """
     Image pre-processing pipeline designed to maximise OCR accuracy:
@@ -40,6 +41,7 @@ def preprocess_image(pil_img: Image.Image) -> Image.Image:
     )
     return Image.fromarray(binary)
 
+
 def maybe_resize(pil_img: Image.Image, raw_bytes: bytes) -> Image.Image:
     """Downscale the image if it exceeds the size threshold."""
     if (len(raw_bytes) / (1024 * 1024)) > settings.image_size_threshold_mb:
@@ -50,6 +52,7 @@ def maybe_resize(pil_img: Image.Image, raw_bytes: bytes) -> Image.Image:
         )
         logger.info("Image resized to %s", pil_img.size)
     return pil_img
+
 
 class OCRPipeline:
     """
@@ -97,6 +100,8 @@ class OCRPipeline:
 
 # For backward compatibility with routes that haven't been refactored yet
 # we can instantiate a default pipeline.
+
+
 def default_ocr_pipeline(pil_img: Image.Image, lang_hint: str = "auto") -> tuple:
     from ocr_correction.adapters import TesseractAdapter, NLTKProcessor, LanguageToolAdapter
     pipeline = OCRPipeline(
@@ -106,6 +111,7 @@ def default_ocr_pipeline(pil_img: Image.Image, lang_hint: str = "auto") -> tuple
     )
     doc = pipeline.process(pil_img, lang_hint)
     return doc.raw_text, doc.corrected_text, doc.detected_language
+
 
 # The routes still look for `ocr_pipeline` function.
 ocr_pipeline = default_ocr_pipeline

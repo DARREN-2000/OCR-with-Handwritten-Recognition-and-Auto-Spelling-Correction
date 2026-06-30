@@ -66,7 +66,7 @@ class OCRCorrectionAPI(Resource):
 
             try:
                 pil_img = Image.open(io.BytesIO(raw_bytes))
-                pil_img.verify() # Validate it's an actual image
+                pil_img.verify()  # Validate it's an actual image
 
                 # Reopen since verify() can leave the file pointer at the end
                 pil_img = Image.open(io.BytesIO(raw_bytes))

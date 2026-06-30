@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Optional
 from PIL import Image
+
 
 class BaseOCREngine(ABC):
     """Abstract base class (Port) for OCR engines."""
@@ -9,6 +9,7 @@ class BaseOCREngine(ABC):
     def extract_text(self, image: Image.Image) -> str:
         """Extract text from a PIL Image."""
         pass
+
 
 class BaseNLPProcessor(ABC):
     """Abstract base class (Port) for NLP tokenization and language detection."""
@@ -22,6 +23,7 @@ class BaseNLPProcessor(ABC):
     def detect_language(self, text: str) -> str:
         """Detect language of the text, returning a locale code."""
         pass
+
 
 class BaseSpellingEngine(ABC):
     """Abstract base class (Port) for spelling/grammar correction engines."""
