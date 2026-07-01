@@ -2,7 +2,8 @@
 REST API routes for the OCR Spelling Correction System.
 """
 
-import logging
+import structlog
+import io
 
 import werkzeug
 from flask import Blueprint
@@ -11,8 +12,9 @@ from PIL import Image
 
 from ocr_correction.config import LANGUAGE_MAP
 from ocr_correction.pipeline import ocr_pipeline
+from ocr_correction.exceptions import InvalidImageError
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 api_bp = Blueprint("api", __name__)
 api = Api(api_bp)
@@ -51,14 +53,25 @@ class OCRCorrectionAPI(Resource):
 
     def post(self):
         data = _parser.parse_args()
-        if not data["file"]:
+        if not data.get("file"):
             return {"error": "No image file provided"}, 400
 
         photo = data["file"]
         lang_hint = data.get("lang") or "auto"
 
         try:
-            pil_img = Image.open(photo.stream)
+            raw_bytes = photo.read()
+            if not raw_bytes:
+                raise InvalidImageError("Empty image file provided.")
+
+            try:
+                pil_img = Image.open(io.BytesIO(raw_bytes))
+                pil_img.verify()  # Validate it's an actual image
+
+                # Reopen since verify() can leave the file pointer at the end
+                pil_img = Image.open(io.BytesIO(raw_bytes))
+            except Exception as e:
+                raise InvalidImageError("Unsupported or corrupted file type") from e
             raw_text, corrected_text, detected_lang = ocr_pipeline(
                 pil_img, lang_hint
             )
@@ -69,9 +82,12 @@ class OCRCorrectionAPI(Resource):
                 "detected_language": detected_lang,
             }, 200
 
+        except InvalidImageError as exc:
+            logger.warning("Invalid image upload via API", error=str(exc))
+            return {"error": "Invalid image", "detail": str(exc)}, 400
         except Exception as exc:
-            logger.exception("API processing error: %s", exc)
-            return {"error": "Processing failed", "detail": str(exc)}, 500
+            logger.exception("API processing error", error=str(exc))
+            return {"error": "Processing failed", "detail": "An internal error occurred."}, 500
 
 
 api.add_resource(OCRCorrectionAPI, "/api/v1/")

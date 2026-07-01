@@ -34,7 +34,7 @@ jobs:
 
       - name: Lint with flake8
         run: |
-          flake8 ocr_correction/ tests/ app.py --count --show-source --statistics
+          flake8 src/ tests/ app.py --count --show-source --statistics
 
       - name: Run tests
         run: |

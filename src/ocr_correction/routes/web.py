@@ -4,14 +4,15 @@ Web UI routes for the OCR Spelling Correction System.
 
 import base64
 import io
-import logging
+import structlog
 
 from flask import Blueprint, Response, render_template, request
 from PIL import Image
 
 from ocr_correction.pipeline import maybe_resize, ocr_pipeline
+from ocr_correction.exceptions import InvalidImageError
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 web_bp = Blueprint("web", __name__)
 
@@ -32,10 +33,22 @@ def about():
 def upload():
     """Handle image upload, run OCR pipeline, and display results."""
     try:
-        imagefile = request.files.get("imagefile", "")
-        raw_bytes = request.files["imagefile"].read()
+        if "imagefile" not in request.files:
+            raise InvalidImageError("No image file provided.")
 
-        pil_img = Image.open(io.BytesIO(raw_bytes))
+        imagefile = request.files["imagefile"]
+        raw_bytes = imagefile.read()
+
+        if not raw_bytes:
+            raise InvalidImageError("Empty image file provided.")
+
+        try:
+            pil_img = Image.open(io.BytesIO(raw_bytes))
+            pil_img.verify()
+
+            pil_img = Image.open(io.BytesIO(raw_bytes))
+        except Exception as e:
+            raise InvalidImageError("Unsupported or corrupted file type") from e
         pil_img = maybe_resize(pil_img, raw_bytes)
 
         ext = (
@@ -52,9 +65,12 @@ def upload():
         )
         return render_template("result.html", var=corrected_text, img=img_b64)
 
+    except InvalidImageError as exc:
+        logger.warning("Invalid image upload", error=str(exc))
+        return render_template("error.html", error=str(exc)), 400
     except Exception as exc:
-        logger.exception("Upload processing failed: %s", exc)
-        return render_template("error.html")
+        logger.exception("Upload processing failed", error=str(exc))
+        return render_template("error.html", error="An internal error occurred."), 500
 
 
 @web_bp.route("/gettext", methods=["POST"])

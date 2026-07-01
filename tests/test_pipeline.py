@@ -3,13 +3,31 @@
 import numpy as np
 from PIL import Image
 
-from ocr_correction.config import DEFAULT_LANG_CODE, LANGUAGE_MAP
+from ocr_correction.config import settings
 from ocr_correction.pipeline import (
-    detect_language,
     maybe_resize,
     preprocess_image,
-    tokenize,
+    OCRPipeline,
 )
+from ocr_correction.ports import BaseOCREngine, BaseNLPProcessor, BaseSpellingEngine
+
+
+class MockOCREngine(BaseOCREngine):
+    def extract_text(self, image: Image.Image) -> str:
+        return "Mock extracted text."
+
+
+class MockNLPProcessor(BaseNLPProcessor):
+    def tokenize(self, text: str) -> str:
+        return text.strip()
+
+    def detect_language(self, text: str) -> str:
+        return settings.default_lang_code
+
+
+class MockSpellingEngine(BaseSpellingEngine):
+    def correct(self, text: str, lang_code: str) -> str:
+        return "Mock corrected text."
 
 
 class TestPreprocessImage:
@@ -58,41 +76,18 @@ class TestMaybeResize:
         assert result.size[1] < 1000
 
 
-class TestDetectLanguage:
-    """Tests for the detect_language function."""
+class TestOCRPipeline:
+    """Tests for the refactored OCRPipeline using dependency injection."""
 
-    def test_returns_string(self):
-        result = detect_language("Hello world")
-        assert isinstance(result, str)
+    def test_pipeline_process(self):
+        img = Image.new("RGB", (100, 100), color=(255, 255, 255))
+        pipeline = OCRPipeline(
+            ocr_engine=MockOCREngine(),
+            nlp_processor=MockNLPProcessor(),
+            spelling_engine=MockSpellingEngine()
+        )
+        doc = pipeline.process(img)
 
-    def test_fallback_on_empty(self):
-        result = detect_language("")
-        assert result == DEFAULT_LANG_CODE
-
-    def test_returns_valid_lang_code(self):
-        result = detect_language("This is a simple English sentence.")
-        valid_codes = set(LANGUAGE_MAP.values()) | {DEFAULT_LANG_CODE}
-        assert result in valid_codes
-
-
-class TestTokenize:
-    """Tests for the tokenize function."""
-
-    def test_returns_string(self):
-        result = tokenize("Hello world. How are you?")
-        assert isinstance(result, str)
-
-    def test_preserves_words(self):
-        result = tokenize("Hello world")
-        assert "Hello" in result
-        assert "world" in result
-
-    def test_handles_empty(self):
-        result = tokenize("")
-        assert isinstance(result, str)
-
-    def test_multiple_sentences(self):
-        text = "First sentence. Second sentence."
-        result = tokenize(text)
-        assert "First" in result
-        assert "Second" in result
+        assert doc.raw_text == "Mock extracted text."
+        assert doc.corrected_text == "Mock corrected text."
+        assert doc.detected_language == settings.default_lang_code

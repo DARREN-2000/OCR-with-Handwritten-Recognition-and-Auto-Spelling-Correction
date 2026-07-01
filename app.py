@@ -11,14 +11,22 @@ Usage:
     gunicorn app:app --preload      # Production (Gunicorn)
 """
 
-import logging
-
 from ocr_correction import create_app
+import structlog
+import sys
+import os
 
-# Logging setup for the application
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s  %(levelname)-8s  %(message)s",
+# Add src/ to the path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
+
+
+structlog.configure(
+    processors=[
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.stdlib.add_log_level,
+        structlog.processors.JSONRenderer(),
+    ],
+    logger_factory=structlog.PrintLoggerFactory(),
 )
 
 app = create_app()
