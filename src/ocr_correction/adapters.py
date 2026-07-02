@@ -1,5 +1,4 @@
 import os
-import sys
 import functools
 import structlog
 
@@ -23,8 +22,6 @@ for _resource in ("tokenizers/punkt", "tokenizers/punkt_tab"):
         nltk.data.find(_resource)
     except LookupError:
         nltk.download(_resource.split("/")[-1], quiet=True)
-
-
 
 if settings.tesseract_cmd and os.path.exists(settings.tesseract_cmd):
     pytesseract.pytesseract.tesseract_cmd = settings.tesseract_cmd

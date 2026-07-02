@@ -51,6 +51,7 @@ class TestAPIRoutes:
                 self.raw_text = "Mock raw text"
                 self.corrected_text = "Mock corrected text"
                 self.detected_language = "en-US"
+
         def mock_pipeline(*args, **kwargs):
             return MockDocument()
 
