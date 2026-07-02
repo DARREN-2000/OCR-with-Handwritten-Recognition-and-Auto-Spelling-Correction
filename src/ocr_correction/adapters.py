@@ -5,6 +5,7 @@ import structlog
 
 import nltk
 import pytesseract
+from pytesseract.pytesseract import TesseractNotFoundError
 import language_tool_python
 from langdetect import LangDetectException, detect
 from nltk.tokenize import sent_tokenize, word_tokenize
@@ -23,11 +24,10 @@ for _resource in ("tokenizers/punkt", "tokenizers/punkt_tab"):
     except LookupError:
         nltk.download(_resource.split("/")[-1], quiet=True)
 
-# Tesseract path config for Windows
-if sys.platform == "win32":
-    _win_path = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-    if os.path.exists(_win_path):
-        pytesseract.pytesseract.tesseract_cmd = _win_path
+
+
+if settings.tesseract_cmd and os.path.exists(settings.tesseract_cmd):
+    pytesseract.pytesseract.tesseract_cmd = settings.tesseract_cmd
 
 
 class TesseractAdapter(BaseOCREngine):
@@ -36,6 +36,9 @@ class TesseractAdapter(BaseOCREngine):
     def extract_text(self, image: Image.Image) -> str:
         try:
             return pytesseract.image_to_string(image, config=settings.ocr_config)
+        except TesseractNotFoundError as exc:
+            logger.error("Tesseract binary not found.")
+            raise EngineError("Tesseract OCR is not installed or not in PATH.") from exc
         except Exception as exc:
             raise EngineError(f"Tesseract extraction failed: {exc}") from exc
 

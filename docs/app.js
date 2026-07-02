@@ -17,6 +17,8 @@ const tesseractLanguageByChoice = {
     "pt-PT": "por"
 };
 
+let worker = null;
+
 function setStatus(message) {
     statusEl.textContent = message;
 }
@@ -62,7 +64,10 @@ async function correctText(rawText, selectedLanguage) {
     });
 
     if (!response.ok) {
-        throw new Error("Language correction request failed.");
+        if (response.status === 429) {
+            throw new Error("LanguageTool rate limit exceeded. Please try again later.");
+        }
+        throw new Error(`Language correction request failed with status ${response.status}.`);
     }
 
     const payload = await response.json();
@@ -94,16 +99,26 @@ runBtn.addEventListener("click", async () => {
     const tessLang = tesseractLanguageByChoice[selectedLanguage] || tesseractLanguageByChoice.auto;
 
     runBtn.disabled = true;
-    setStatus("Running OCR...");
+    setStatus("Initializing OCR Worker...");
 
     try {
-        const ocrResult = await Tesseract.recognize(file, tessLang, {
-            logger: (message) => {
-                if (message.status === "recognizing text" && typeof message.progress === "number") {
-                    setStatus(`Running OCR... ${Math.round(message.progress * 100)}%`);
+        if (!worker) {
+            worker = await Tesseract.createWorker(tessLang, 1, {
+                logger: (message) => {
+                    if (message.status === "recognizing text" && typeof message.progress === "number") {
+                        setStatus(`Running OCR... ${Math.round(message.progress * 100)}%`);
+                    } else if (message.status === "loading tesseract core" || message.status === "loading language traineddata") {
+                        setStatus(`Loading OCR Data...`);
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            await worker.loadLanguage(tessLang);
+            await worker.initialize(tessLang);
+        }
+
+        setStatus("Running OCR...");
+        const ocrResult = await worker.recognize(file);
 
         const rawText = (ocrResult.data.text || "").trim();
         rawTextEl.value = rawText;
