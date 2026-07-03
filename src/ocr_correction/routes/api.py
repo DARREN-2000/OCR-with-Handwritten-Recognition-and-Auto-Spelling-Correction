@@ -72,14 +72,12 @@ class OCRCorrectionAPI(Resource):
                 pil_img = Image.open(io.BytesIO(raw_bytes))
             except Exception as e:
                 raise InvalidImageError("Unsupported or corrupted file type") from e
-            raw_text, corrected_text, detected_lang = ocr_pipeline(
-                pil_img, lang_hint
-            )
+            doc = ocr_pipeline(pil_img, lang_hint)
 
             return {
-                "raw_text": raw_text,
-                "corrected_text": corrected_text,
-                "detected_language": detected_lang,
+                "raw_text": doc.raw_text,
+                "corrected_text": doc.corrected_text,
+                "detected_language": doc.detected_language,
             }, 200
 
         except InvalidImageError as exc:

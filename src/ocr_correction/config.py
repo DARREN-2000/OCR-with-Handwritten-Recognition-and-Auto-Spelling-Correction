@@ -15,6 +15,10 @@ class Settings(BaseSettings):
     resize_factor: float = Field(default=0.9, description="Factor to resize image by.")
 
     # Tesseract OCR
+    tesseract_cmd: str | None = Field(
+        default=None,
+        description="Path to the Tesseract binary (e.g., C:\\Program Files\\Tesseract-OCR\\tesseract.exe on Windows)."
+    )
     ocr_config: str = Field(
         default="--oem 1 --psm 3",
         description="Tesseract configuration string.")
@@ -41,5 +45,6 @@ settings = Settings()
 IMAGE_SIZE_THRESHOLD_MB = settings.image_size_threshold_mb
 RESIZE_FACTOR = settings.resize_factor
 OCR_CONFIG = settings.ocr_config
+TESSERACT_CMD = settings.tesseract_cmd
 LANGUAGE_MAP = settings.language_map
 DEFAULT_LANG_CODE = settings.default_lang_code

@@ -57,13 +57,13 @@ def upload():
             else "jpeg"
         )
 
-        _, corrected_text, _ = ocr_pipeline(pil_img)
+        doc = ocr_pipeline(pil_img)
 
         img_b64 = (
             "data:image/" + ext + ";base64,"
             + base64.b64encode(raw_bytes).decode("utf-8")
         )
-        return render_template("result.html", var=corrected_text, img=img_b64)
+        return render_template("result.html", var=doc.corrected_text, img=img_b64)
 
     except InvalidImageError as exc:
         logger.warning("Invalid image upload", error=str(exc))

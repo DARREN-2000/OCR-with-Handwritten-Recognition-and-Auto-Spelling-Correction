@@ -46,8 +46,14 @@ class TestAPIRoutes:
 
     def test_api_post_valid_file(self, client, monkeypatch):
         # Mock the pipeline so we don't actually run Tesseract/LanguageTool during tests
+        class MockDocument:
+            def __init__(self):
+                self.raw_text = "Mock raw text"
+                self.corrected_text = "Mock corrected text"
+                self.detected_language = "en-US"
+
         def mock_pipeline(*args, **kwargs):
-            return "Mock raw text", "Mock corrected text", "en-US"
+            return MockDocument()
 
         import ocr_correction.routes.api
         monkeypatch.setattr(ocr_correction.routes.api, "ocr_pipeline", mock_pipeline)

@@ -102,7 +102,7 @@ class OCRPipeline:
 # we can instantiate a default pipeline.
 
 
-def default_ocr_pipeline(pil_img: Image.Image, lang_hint: str = "auto") -> tuple:
+def default_ocr_pipeline(pil_img: Image.Image, lang_hint: str = "auto") -> Document:
     from ocr_correction.adapters import TesseractAdapter, NLTKProcessor, LanguageToolAdapter
     pipeline = OCRPipeline(
         ocr_engine=TesseractAdapter(),
@@ -110,7 +110,7 @@ def default_ocr_pipeline(pil_img: Image.Image, lang_hint: str = "auto") -> tuple
         spelling_engine=LanguageToolAdapter()
     )
     doc = pipeline.process(pil_img, lang_hint)
-    return doc.raw_text, doc.corrected_text, doc.detected_language
+    return doc
 
 
 # The routes still look for `ocr_pipeline` function.
