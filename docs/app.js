@@ -1,12 +1,18 @@
-const imageInput = document.getElementById("imageInput");
+const imageInput = document.getElementById("imagefile");
 const languageSelect = document.getElementById("languageSelect");
 const runBtn = document.getElementById("runBtn");
 const statusEl = document.getElementById("status");
-const selectedFileNameEl = document.getElementById("selectedFileName");
+const fileNameEl = document.getElementById("file-name");
 const rawTextEl = document.getElementById("rawText");
 const correctedTextEl = document.getElementById("correctedText");
 const copyBtn = document.getElementById("copyBtn");
 const downloadBtn = document.getElementById("downloadBtn");
+const resetBtn = document.getElementById("resetBtn");
+
+const uploadSection = document.getElementById("uploadSection");
+const featuresSection = document.getElementById("featuresSection");
+const resultSection = document.getElementById("resultSection");
+const imagePreview = document.getElementById("imagePreview");
 
 const tesseractLanguageByChoice = {
     auto: "eng+fra+deu+spa+por",
@@ -76,16 +82,24 @@ async function correctText(rawText, selectedLanguage) {
 
 imageInput.addEventListener("change", (event) => {
     const file = event.target.files && event.target.files[0];
-    rawTextEl.value = "";
-    correctedTextEl.value = "";
 
     if (!file) {
-        selectedFileNameEl.textContent = "No file selected.";
+        fileNameEl.textContent = "";
+        imagePreview.style.display = "none";
+        imagePreview.src = "";
         return;
     }
 
-    selectedFileNameEl.textContent = file.name;
-    setStatus("Image selected.");
+    fileNameEl.textContent = file.name;
+    setStatus("Image selected. Ready to process.");
+
+    // Update image preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        imagePreview.src = e.target.result;
+        imagePreview.style.display = "block";
+    };
+    reader.readAsDataURL(file);
 });
 
 runBtn.addEventListener("click", async () => {
@@ -99,6 +113,8 @@ runBtn.addEventListener("click", async () => {
     const tessLang = tesseractLanguageByChoice[selectedLanguage] || tesseractLanguageByChoice.auto;
 
     runBtn.disabled = true;
+    imageInput.disabled = true;
+    languageSelect.disabled = true;
     setStatus("Initializing OCR Worker...");
 
     try {
@@ -126,6 +142,10 @@ runBtn.addEventListener("click", async () => {
         if (!rawText) {
             correctedTextEl.value = "";
             setStatus("No text detected in image.");
+            // Re-enable form
+            runBtn.disabled = false;
+            imageInput.disabled = false;
+            languageSelect.disabled = false;
             return;
         }
 
@@ -133,32 +153,58 @@ runBtn.addEventListener("click", async () => {
         const corrected = await correctText(rawText, selectedLanguage);
         correctedTextEl.value = corrected;
         setStatus("Done.");
+
+        // Switch sections
+        uploadSection.classList.add("hidden");
+        featuresSection.classList.add("hidden");
+        resultSection.classList.remove("hidden");
+
     } catch (error) {
         setStatus(`Error: ${error.message}`);
     } finally {
         runBtn.disabled = false;
+        imageInput.disabled = false;
+        languageSelect.disabled = false;
     }
+});
+
+resetBtn.addEventListener("click", () => {
+    // Reset inputs
+    imageInput.value = "";
+    fileNameEl.textContent = "";
+    rawTextEl.value = "";
+    correctedTextEl.value = "";
+    setStatus("");
+    imagePreview.src = "";
+    imagePreview.style.display = "none";
+
+    // Switch sections
+    resultSection.classList.add("hidden");
+    uploadSection.classList.remove("hidden");
+    featuresSection.classList.remove("hidden");
 });
 
 copyBtn.addEventListener("click", async () => {
     const text = correctedTextEl.value;
     if (!text) {
-        setStatus("No corrected text to copy.");
         return;
     }
 
     try {
         await navigator.clipboard.writeText(text);
-        setStatus("Corrected text copied.");
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = "Copied!";
+        setTimeout(() => {
+            copyBtn.textContent = originalText;
+        }, 2000);
     } catch (_error) {
-        setStatus("Clipboard access failed.");
+        alert("Clipboard access failed.");
     }
 });
 
 downloadBtn.addEventListener("click", () => {
     const text = correctedTextEl.value;
     if (!text) {
-        setStatus("No corrected text to download.");
         return;
     }
 
@@ -171,5 +217,4 @@ downloadBtn.addEventListener("click", () => {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    setStatus("Downloaded corrected-text.txt");
 });
