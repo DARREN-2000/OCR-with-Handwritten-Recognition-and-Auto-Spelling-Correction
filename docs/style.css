@@ -142,6 +142,12 @@ a:hover { text-decoration: underline; }
     background: #eff6ff;
 }
 
+.file-input-wrapper.dragover .file-label {
+    border-color: var(--color-primary);
+    background: #eff6ff;
+    border-style: solid;
+}
+
 .file-icon { font-size: 2.5rem; }
 
 .file-text {
@@ -152,6 +158,21 @@ a:hover { text-decoration: underline; }
 .file-hint {
     font-size: 0.85rem;
     color: var(--color-text-muted);
+}
+
+progress {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+progress::-webkit-progress-bar {
+    background-color: var(--color-border);
+}
+progress::-webkit-progress-value {
+    background-color: var(--color-primary);
+    transition: width 0.2s;
 }
 
 input[type="file"] {

@@ -2,7 +2,9 @@ const imageInput = document.getElementById("imagefile");
 const languageSelect = document.getElementById("languageSelect");
 const runBtn = document.getElementById("runBtn");
 const statusEl = document.getElementById("status");
+const progressBar = document.getElementById("progressBar");
 const fileNameEl = document.getElementById("file-name");
+const dropZone = document.getElementById("dropZone");
 const rawTextEl = document.getElementById("rawText");
 const correctedTextEl = document.getElementById("correctedText");
 const copyBtn = document.getElementById("copyBtn");
@@ -13,6 +15,7 @@ const uploadSection = document.getElementById("uploadSection");
 const featuresSection = document.getElementById("featuresSection");
 const resultSection = document.getElementById("resultSection");
 const imagePreview = document.getElementById("imagePreview");
+const preprocessedCanvas = document.getElementById("preprocessedCanvas");
 
 const tesseractLanguageByChoice = {
     auto: "eng+fra+deu+spa+por",
@@ -24,9 +27,71 @@ const tesseractLanguageByChoice = {
 };
 
 let worker = null;
+let cvReady = false;
+
+function onOpenCvReady() {
+    cvReady = true;
+    console.log("OpenCV is ready.");
+}
 
 function setStatus(message) {
     statusEl.textContent = message;
+}
+
+async function preprocessImage(imgElement) {
+    if (!cvReady) {
+        console.warn("OpenCV not ready yet, skipping preprocessing.");
+        return imgElement;
+    }
+    return new Promise((resolve) => {
+        let src, gray, denoised, binary;
+        try {
+            src = cv.imread(imgElement);
+
+            // 1. Grayscale
+            gray = new cv.Mat();
+            cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
+
+            // 2. Denoising
+            denoised = new cv.Mat();
+            try {
+                cv.fastNlMeansDenoising(gray, denoised, 10, 7, 21);
+            } catch (denoiseErr) {
+                console.warn("OpenCV denoising failed, skipping:", denoiseErr);
+                gray.copyTo(denoised); // Fallback to grayscale without denoising
+            }
+
+            // 3. Adaptive Thresholding
+            binary = new cv.Mat();
+            cv.adaptiveThreshold(denoised, binary, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 11, 2);
+
+            // Display on canvas
+            preprocessedCanvas.style.display = "block";
+            cv.imshow('preprocessedCanvas', binary);
+
+            resolve(preprocessedCanvas);
+        } catch (err) {
+            console.error("OpenCV preprocessing error:", err);
+            resolve(imgElement); // Fallback to original image
+        } finally {
+            // Cleanup
+            if (src) src.delete();
+            if (gray) gray.delete();
+            if (denoised) denoised.delete();
+            if (binary) binary.delete();
+        }
+    });
+}
+
+function tokenizeAndClean(text) {
+    // Mimic basic NLP tokenization/cleaning (like NLTK in backend)
+    // 1. Normalize whitespace
+    let cleaned = text.replace(/\s+/g, ' ').trim();
+    // 2. Fix punctuation spacing (e.g. "word , word" -> "word, word")
+    cleaned = cleaned.replace(/\s+([.,;:!?])/g, '$1');
+    // 3. Ensure space after punctuation (e.g. "word,word" -> "word, word")
+    cleaned = cleaned.replace(/([.,;:!?])(?=[^\s])/g, '$1 ');
+    return cleaned;
 }
 
 function applyLanguageToolCorrections(text, matches) {
@@ -77,12 +142,19 @@ async function correctText(rawText, selectedLanguage) {
     }
 
     const payload = await response.json();
-    return applyLanguageToolCorrections(rawText, payload.matches || []);
+
+    let detectedName = null;
+    if (selectedLanguage === "auto" && payload.language && payload.language.detectedLanguage) {
+        detectedName = payload.language.detectedLanguage.name;
+    }
+
+    return {
+        corrected: applyLanguageToolCorrections(rawText, payload.matches || []),
+        detectedName: detectedName
+    };
 }
 
-imageInput.addEventListener("change", (event) => {
-    const file = event.target.files && event.target.files[0];
-
+function handleFileSelect(file) {
     if (!file) {
         fileNameEl.textContent = "";
         imagePreview.style.display = "none";
@@ -100,6 +172,31 @@ imageInput.addEventListener("change", (event) => {
         imagePreview.style.display = "block";
     };
     reader.readAsDataURL(file);
+}
+
+// Drag and drop support
+dropZone.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    dropZone.classList.add("dragover");
+});
+
+dropZone.addEventListener("dragleave", () => {
+    dropZone.classList.remove("dragover");
+});
+
+dropZone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dropZone.classList.remove("dragover");
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        imageInput.files = e.dataTransfer.files;
+        handleFileSelect(e.dataTransfer.files[0]);
+    }
+});
+
+imageInput.addEventListener("change", (event) => {
+    const file = event.target.files && event.target.files[0];
+    handleFileSelect(file);
 });
 
 runBtn.addEventListener("click", async () => {
@@ -118,13 +215,19 @@ runBtn.addEventListener("click", async () => {
     setStatus("Initializing OCR Worker...");
 
     try {
+        progressBar.style.display = "block";
+        progressBar.value = 0;
+
         if (!worker) {
             worker = await Tesseract.createWorker(tessLang, 1, {
                 logger: (message) => {
                     if (message.status === "recognizing text" && typeof message.progress === "number") {
-                        setStatus(`Running OCR... ${Math.round(message.progress * 100)}%`);
+                        const pct = Math.round(message.progress * 100);
+                        setStatus(`Running OCR... ${pct}%`);
+                        progressBar.value = pct;
                     } else if (message.status === "loading tesseract core" || message.status === "loading language traineddata") {
                         setStatus(`Loading OCR Data...`);
+                        progressBar.removeAttribute("value"); // indeterminate state
                     }
                 }
             });
@@ -133,10 +236,25 @@ runBtn.addEventListener("click", async () => {
             await worker.initialize(tessLang);
         }
 
-        setStatus("Running OCR...");
-        const ocrResult = await worker.recognize(file);
+        setStatus("Pre-processing image...");
+        let targetForOCR = file;
 
-        const rawText = (ocrResult.data.text || "").trim();
+        // Use an Image element to load the file, then process it
+        const imgForProcessing = new Image();
+        imgForProcessing.src = URL.createObjectURL(file);
+        await new Promise(resolve => imgForProcessing.onload = resolve);
+
+        targetForOCR = await preprocessImage(imgForProcessing);
+
+        setStatus("Running OCR...");
+        const ocrResult = await worker.recognize(targetForOCR);
+
+        let rawText = (ocrResult.data.text || "").trim();
+
+        if (rawText) {
+            rawText = tokenizeAndClean(rawText);
+        }
+
         rawTextEl.value = rawText;
 
         if (!rawText) {
@@ -150,9 +268,13 @@ runBtn.addEventListener("click", async () => {
         }
 
         setStatus("Applying spelling and grammar correction...");
-        const corrected = await correctText(rawText, selectedLanguage);
-        correctedTextEl.value = corrected;
-        setStatus("Done.");
+        const result = await correctText(rawText, selectedLanguage);
+        correctedTextEl.value = result.corrected;
+        if (result.detectedName) {
+            setStatus(`Done. Detected Language: ${result.detectedName}`);
+        } else {
+            setStatus("Done.");
+        }
 
         // Switch sections
         uploadSection.classList.add("hidden");
@@ -162,6 +284,7 @@ runBtn.addEventListener("click", async () => {
     } catch (error) {
         setStatus(`Error: ${error.message}`);
     } finally {
+        progressBar.style.display = "none";
         runBtn.disabled = false;
         imageInput.disabled = false;
         languageSelect.disabled = false;
@@ -177,6 +300,9 @@ resetBtn.addEventListener("click", () => {
     setStatus("");
     imagePreview.src = "";
     imagePreview.style.display = "none";
+    preprocessedCanvas.style.display = "none";
+    const ctx = preprocessedCanvas.getContext("2d");
+    if(ctx) ctx.clearRect(0, 0, preprocessedCanvas.width, preprocessedCanvas.height);
 
     // Switch sections
     resultSection.classList.add("hidden");
