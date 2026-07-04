@@ -12,9 +12,13 @@ from ocr_correction.pipeline import (
 from ocr_correction.ports import BaseOCREngine, BaseNLPProcessor, BaseSpellingEngine
 
 
+from ocr_correction.domain import TextSnippet, BoundingBox
+
+
 class MockOCREngine(BaseOCREngine):
-    def extract_text(self, image: Image.Image) -> str:
-        return "Mock extracted text."
+    def extract_text(self, image: Image.Image) -> tuple[str, list[TextSnippet]]:
+        snippets = [TextSnippet(text="Mock extracted text.", confidence=99.0, bounding_box=BoundingBox(x=0, y=0, w=10, h=10))]
+        return "Mock extracted text.", snippets
 
 
 class MockNLPProcessor(BaseNLPProcessor):

@@ -1,7 +1,5 @@
 """Tests for Flask web routes and API endpoints."""
 
-import io
-
 
 class TestWebRoutes:
     """Tests for the web UI routes."""
@@ -9,12 +7,12 @@ class TestWebRoutes:
     def test_home_page(self, client):
         response = client.get("/")
         assert response.status_code == 200
-        assert b"OCR" in response.data
+        assert b"OCR" in response.content
 
     def test_about_page(self, client):
         response = client.get("/about/")
         assert response.status_code == 200
-        assert b"About" in response.data
+        assert b"About" in response.content
 
 
 class TestAPIRoutes:
@@ -23,34 +21,38 @@ class TestAPIRoutes:
     def test_api_get_info(self, client):
         response = client.get("/api/v1/")
         assert response.status_code == 200
-        data = response.get_json()
+        data = response.json()
         assert "service" in data
         assert "version" in data
         assert "supported_languages" in data
 
     def test_api_post_no_file(self, client):
         response = client.post("/api/v1/")
-        assert response.status_code == 400
-        data = response.get_json()
-        assert "error" in data
+        assert response.status_code == 422  # FastAPI standard validation error for missing field
 
     def test_api_post_invalid_file_type(self, client):
-        data = {
-            'file': (io.BytesIO(b"not an image"), 'test.txt')
+        files = {
+            'file': ('test.txt', b"not an image", 'text/plain')
         }
-        response = client.post("/api/v1/", data=data, content_type='multipart/form-data')
+        response = client.post("/api/v1/", files=files)
         assert response.status_code == 400
-        json_data = response.get_json()
-        assert "error" in json_data
-        assert json_data["error"] == "Invalid image"
+        json_data = response.json()
+        assert "detail" in json_data
+        assert "error" in json_data["detail"]
+        assert json_data["detail"]["error"] == "Invalid image"
 
     def test_api_post_valid_file(self, client, monkeypatch):
         # Mock the pipeline so we don't actually run Tesseract/LanguageTool during tests
+        class MockSnippet:
+            def model_dump(self):
+                return {"text": "Mock snippet", "confidence": 99.0, "bounding_box": {"x": 0, "y": 0, "w": 10, "h": 10}}
+
         class MockDocument:
             def __init__(self):
                 self.raw_text = "Mock raw text"
                 self.corrected_text = "Mock corrected text"
                 self.detected_language = "en-US"
+                self.snippets = [MockSnippet()]
 
         def mock_pipeline(*args, **kwargs):
             return MockDocument()
@@ -83,12 +85,12 @@ class TestAPIRoutes:
             b"\x28\xa0\x0f\xff\xd9"
         )
 
-        data = {
-            'file': (io.BytesIO(min_jpg), 'test.jpg')
+        files = {
+            'file': ('test.jpg', min_jpg, 'image/jpeg')
         }
-        response = client.post("/api/v1/", data=data, content_type='multipart/form-data')
+        response = client.post("/api/v1/", files=files, data={"lang": "auto"})
         assert response.status_code == 200
-        json_data = response.get_json()
+        json_data = response.json()
         assert json_data["raw_text"] == "Mock raw text"
         assert json_data["corrected_text"] == "Mock corrected text"
         assert json_data["detected_language"] == "en-US"

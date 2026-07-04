@@ -4,43 +4,53 @@ Web UI routes for the OCR Spelling Correction System.
 
 import base64
 import io
+import os
 import structlog
 
-from flask import Blueprint, Response, render_template, request
+from fastapi import APIRouter, Request, UploadFile, File, Form
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse, PlainTextResponse
 from PIL import Image
+import magic
 
 from ocr_correction.pipeline import maybe_resize, ocr_pipeline
 from ocr_correction.exceptions import InvalidImageError
 
 logger = structlog.get_logger(__name__)
 
-web_bp = Blueprint("web", __name__)
+web_bp = APIRouter(tags=["web"])
+
+# Setup templates directory
+templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "..", "templates"))
 
 
-@web_bp.route("/")
-def home():
+@web_bp.get("/", response_class=HTMLResponse)
+async def home(request: Request):
     """Render the home / upload page."""
-    return render_template("index.html")
+    return templates.TemplateResponse(request=request, name="index.html")
 
 
-@web_bp.route("/about/")
-def about():
+@web_bp.get("/about/", response_class=HTMLResponse)
+async def about(request: Request):
     """Render the about page."""
-    return render_template("about.html")
+    return templates.TemplateResponse(request=request, name="about.html")
 
 
-@web_bp.route("/upload/", methods=["GET", "POST"])
-def upload():
+@web_bp.post("/upload/", response_class=HTMLResponse)
+async def upload(request: Request, imagefile: UploadFile = File(...)):
     """Handle image upload, run OCR pipeline, and display results."""
     try:
-        if "imagefile" not in request.files:
+        if not imagefile:
             raise InvalidImageError("No image file provided.")
 
-        imagefile = request.files["imagefile"]
-        raw_bytes = imagefile.read()
+        raw_bytes = await imagefile.read()
 
         if not raw_bytes:
             raise InvalidImageError("Empty image file provided.")
+
+        mime_type = magic.from_buffer(raw_bytes, mime=True)
+        if not mime_type.startswith("image/"):
+            raise InvalidImageError(f"Unsupported file type: {mime_type}. Must be an image.")
 
         try:
             pil_img = Image.open(io.BytesIO(raw_bytes))
@@ -53,7 +63,7 @@ def upload():
 
         ext = (
             imagefile.filename.rsplit(".", 1)[1]
-            if "." in imagefile.filename
+            if imagefile.filename and "." in imagefile.filename
             else "jpeg"
         )
 
@@ -63,24 +73,24 @@ def upload():
             "data:image/" + ext + ";base64,"
             + base64.b64encode(raw_bytes).decode("utf-8")
         )
-        return render_template("result.html", var=doc.corrected_text, img=img_b64)
+        return templates.TemplateResponse(request=request, name="result.html", context={"var": doc.corrected_text, "img": img_b64})
 
     except InvalidImageError as exc:
         logger.warning("Invalid image upload", error=str(exc))
-        return render_template("error.html", error=str(exc)), 400
+        response = templates.TemplateResponse(request=request, name="error.html", context={"error": str(exc)})
+        response.status_code = 400
+        return response
     except Exception as exc:
         logger.exception("Upload processing failed", error=str(exc))
-        return render_template("error.html", error="An internal error occurred."), 500
+        response = templates.TemplateResponse(request=request, name="error.html", context={"error": "An internal error occurred."})
+        response.status_code = 500
+        return response
 
 
-@web_bp.route("/gettext", methods=["POST"])
-def gettext():
+@web_bp.post("/gettext")
+async def gettext(text_content: str = Form("")):
     """Download the corrected output as a text file."""
-    src = request.form.get("text_content", "")
-    return Response(
-        src,
-        mimetype="text/plain",
-        headers={
-            "Content-Disposition": "attachment; filename=corrected_output.txt"
-        },
-    )
+    headers = {
+        "Content-Disposition": "attachment; filename=corrected_output.txt"
+    }
+    return PlainTextResponse(content=text_content, headers=headers)

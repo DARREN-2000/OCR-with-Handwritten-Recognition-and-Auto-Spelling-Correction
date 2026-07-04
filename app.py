@@ -3,22 +3,23 @@ NLP-Based OCR Spelling Correction System
 -----------------------------------------
 Application entry point.
 
-This module creates the Flask application using the factory pattern
+This module creates the FastAPI application using the factory pattern
 defined in the ``ocr_correction`` package.
 
 Usage:
-    flask run                       # Development server
-    gunicorn app:app --preload      # Production (Gunicorn)
+    uvicorn app:app --reload        # Development server
+    uvicorn app:app --host 0.0.0.0  # Production
 """
 
-from ocr_correction import create_app
-import structlog
 import sys
 import os
+import uvicorn
+import structlog
 
 # Add src/ to the path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
 
+from ocr_correction import create_app
 
 structlog.configure(
     processors=[
@@ -32,4 +33,4 @@ structlog.configure(
 app = create_app()
 
 if __name__ == "__main__":
-    app.run(debug=False)
+    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=False)

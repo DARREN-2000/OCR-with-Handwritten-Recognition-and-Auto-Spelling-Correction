@@ -1,0 +1,117 @@
+src/ocr_correction/__init__.py:22:1: W293 blank line contains whitespace
+
+^
+src/ocr_correction/__init__.py:25:19: W291 trailing whitespace
+        "/static",
+                  ^
+src/ocr_correction/__init__.py:26:82: W291 trailing whitespace
+        StaticFiles(directory=os.path.join(os.path.dirname(__file__), "static")),
+                                                                                 ^
+src/ocr_correction/adapters.py:33:1: W293 blank line contains whitespace
+
+^
+src/ocr_correction/adapters.py:48:1: W293 blank line contains whitespace
+
+^
+src/ocr_correction/adapters.py:50:1: W293 blank line contains whitespace
+
+^
+src/ocr_correction/adapters.py:56:1: W293 blank line contains whitespace
+
+^
+src/ocr_correction/adapters.py:64:1: W293 blank line contains whitespace
+
+^
+src/ocr_correction/adapters.py:68:1: W293 blank line contains whitespace
+
+^
+src/ocr_correction/adapters.py:71:1: W293 blank line contains whitespace
+
+^
+src/ocr_correction/adapters.py:83:1: W293 blank line contains whitespace
+
+^
+src/ocr_correction/adapters.py:91:1: W293 blank line contains whitespace
+
+^
+src/ocr_correction/adapters.py:108:1: W293 blank line contains whitespace
+
+^
+src/ocr_correction/adapters.py:115:1: W293 blank line contains whitespace
+
+^
+src/ocr_correction/adapters.py:122:1: W293 blank line contains whitespace
+
+^
+src/ocr_correction/adapters.py:134:1: W293 blank line contains whitespace
+
+^
+src/ocr_correction/adapters.py:145:1: W293 blank line contains whitespace
+
+^
+src/ocr_correction/adapters.py:156:1: W293 blank line contains whitespace
+
+^
+src/ocr_correction/domain.py:11:1: E302 expected 2 blank lines, found 1
+class TextSnippet(BaseModel):
+^
+src/ocr_correction/ports.py:7:1: E302 expected 2 blank lines, found 1
+class BaseOCREngine(ABC):
+^
+src/ocr_correction/routes/api.py:11:1: F401 'fastapi.status' imported but unused
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, BackgroundTasks, status
+^
+src/ocr_correction/routes/api.py:25:1: E302 expected 2 blank lines, found 1
+def process_ocr_task(task_id: str, raw_bytes: bytes, lang_hint: str):
+^
+src/ocr_correction/routes/api.py:47:1: E302 expected 2 blank lines, found 1
+@api_bp.get("/")
+^
+src/ocr_correction/routes/api.py:67:1: E302 expected 2 blank lines, found 1
+@api_bp.post("/")
+^
+src/ocr_correction/routes/api.py:88:1: W293 blank line contains whitespace
+
+^
+src/ocr_correction/routes/api.py:105:1: E302 expected 2 blank lines, found 1
+@api_bp.post("/async")
+^
+src/ocr_correction/routes/api.py:110:1: W293 blank line contains whitespace
+
+^
+src/ocr_correction/routes/api.py:125:1: W293 blank line contains whitespace
+
+^
+src/ocr_correction/routes/api.py:128:1: W293 blank line contains whitespace
+
+^
+src/ocr_correction/routes/api.py:130:1: W293 blank line contains whitespace
+
+^
+src/ocr_correction/routes/api.py:132:1: W293 blank line contains whitespace
+
+^
+src/ocr_correction/routes/api.py:140:1: E302 expected 2 blank lines, found 1
+@api_bp.get("/tasks/{task_id}")
+^
+src/ocr_correction/routes/web.py:10:1: F401 'fastapi.HTTPException' imported but unused
+from fastapi import APIRouter, Request, UploadFile, File, Form, HTTPException, Response
+^
+src/ocr_correction/routes/web.py:10:1: F401 'fastapi.Response' imported but unused
+from fastapi import APIRouter, Request, UploadFile, File, Form, HTTPException, Response
+^
+tests/test_pipeline.py:17:1: E302 expected 2 blank lines, found 1
+class MockOCREngine(BaseOCREngine):
+^
+tests/test_routes.py:3:1: F401 'io' imported but unused
+import io
+^
+tests/test_routes.py:33:43: E261 at least two spaces before inline comment
+        assert response.status_code == 422 # FastAPI standard validation error for missing field
+                                          ^
+1     E261 at least two spaces before inline comment
+8     E302 expected 2 blank lines, found 1
+4     F401 'fastapi.status' imported but unused
+2     W291 trailing whitespace
+22    W293 blank line contains whitespace
+37
