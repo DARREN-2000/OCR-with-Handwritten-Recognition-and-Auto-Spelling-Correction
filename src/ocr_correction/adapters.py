@@ -12,7 +12,15 @@ from PIL import Image
 
 from ocr_correction.ports import BaseOCREngine, BaseNLPProcessor, BaseSpellingEngine
 from ocr_correction.config import settings
-from ocr_correction.exceptions import EngineError, LanguageDetectionError
+from ocr_correction.exceptions import (
+    EngineError,
+    LanguageDetectionError,
+    PaddleOCRError,
+    TrOCRError,
+    TesseractError,
+    NLTKError,
+    LanguageToolError,
+)
 from ocr_correction.domain import TextSnippet, BoundingBox
 
 logger = structlog.get_logger(__name__)
@@ -83,7 +91,7 @@ class PaddleOCRAdapter(BaseOCREngine):
 
             return "\n".join(full_text_parts), snippets
         except Exception as exc:
-            raise EngineError(f"PaddleOCR extraction failed: {exc}") from exc
+            raise PaddleOCRError(f"PaddleOCR extraction failed: {exc}") from exc
 
 
 class TrOCRAdapter(BaseOCREngine):
@@ -122,7 +130,7 @@ class TrOCRAdapter(BaseOCREngine):
 
             return generated_text, snippets
         except Exception as exc:
-            raise EngineError(f"TrOCR extraction failed: {exc}") from exc
+            raise TrOCRError(f"TrOCR extraction failed: {exc}") from exc
 
 
 class TesseractAdapter(BaseOCREngine):
@@ -157,9 +165,9 @@ class TesseractAdapter(BaseOCREngine):
             return full_text, snippets
         except TesseractNotFoundError as exc:
             logger.error("Tesseract binary not found.")
-            raise EngineError("Tesseract OCR is not installed or not in PATH.") from exc
+            raise TesseractError("Tesseract OCR is not installed or not in PATH.") from exc
         except Exception as exc:
-            raise EngineError(f"Tesseract extraction failed: {exc}") from exc
+            raise TesseractError(f"Tesseract extraction failed: {exc}") from exc
 
 
 class NLTKProcessor(BaseNLPProcessor):
@@ -170,7 +178,7 @@ class NLTKProcessor(BaseNLPProcessor):
             sentences = sent_tokenize(text)
             return "\n".join(" ".join(word_tokenize(s)) for s in sentences)
         except Exception as exc:
-            raise EngineError(f"NLTK tokenization failed: {exc}") from exc
+            raise NLTKError(f"NLTK tokenization failed: {exc}") from exc
 
     def detect_language(self, text: str) -> str:
         if not text.strip():
@@ -201,4 +209,4 @@ class LanguageToolAdapter(BaseSpellingEngine):
             tool = _get_cached_language_tool(lang_code)
             return tool.correct(text)
         except Exception as exc:
-            raise EngineError(f"LanguageTool correction failed: {exc}") from exc
+            raise LanguageToolError(f"LanguageTool correction failed: {exc}") from exc

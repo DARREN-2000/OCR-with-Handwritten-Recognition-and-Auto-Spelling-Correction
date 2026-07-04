@@ -16,3 +16,28 @@ class LanguageDetectionError(OCRError):
 class EngineError(OCRError):
     """Raised when an external ML/OCR engine fails."""
     pass
+
+
+class PaddleOCRError(EngineError):
+    """Raised when PaddleOCR fails."""
+    pass
+
+
+class TrOCRError(EngineError):
+    """Raised when TrOCR fails."""
+    pass
+
+
+class TesseractError(EngineError):
+    """Raised when Tesseract OCR fails."""
+    pass
+
+
+class NLTKError(EngineError):
+    """Raised when NLTK processing fails."""
+    pass
+
+
+class LanguageToolError(EngineError):
+    """Raised when LanguageTool processing fails."""
+    pass

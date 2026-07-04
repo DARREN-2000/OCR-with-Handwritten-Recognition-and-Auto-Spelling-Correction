@@ -27,6 +27,7 @@ const tesseractLanguageByChoice = {
 };
 
 let worker = null;
+let currentWorkerLang = null;
 let cvReady = false;
 
 function onOpenCvReady() {
@@ -231,9 +232,11 @@ runBtn.addEventListener("click", async () => {
                     }
                 }
             });
-        } else {
+            currentWorkerLang = tessLang;
+        } else if (currentWorkerLang !== tessLang) {
             await worker.loadLanguage(tessLang);
             await worker.initialize(tessLang);
+            currentWorkerLang = tessLang;
         }
 
         setStatus("Pre-processing image...");
