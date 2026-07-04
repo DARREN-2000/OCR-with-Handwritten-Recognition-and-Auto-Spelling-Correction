@@ -79,7 +79,7 @@ class OCRPipeline:
         """
         preprocessed = preprocess_image(pil_img)
 
-        raw_text = self.ocr_engine.extract_text(preprocessed)
+        raw_text, snippets = self.ocr_engine.extract_text(preprocessed)
         logger.info("OCR extracted %d characters", len(raw_text))
 
         tokenized = self.nlp_processor.tokenize(raw_text)
@@ -95,7 +95,8 @@ class OCRPipeline:
         return Document(
             raw_text=raw_text,
             corrected_text=corrected,
-            detected_language=lang_code
+            detected_language=lang_code,
+            snippets=snippets
         )
 
 # For backward compatibility with routes that haven't been refactored yet

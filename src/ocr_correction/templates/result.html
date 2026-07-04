@@ -20,11 +20,11 @@
                 <pre>{{ var }}</pre>
             </div>
             <div class="result-actions">
-                <form action="{{ url_for('web.gettext') }}" method="post" style="display: inline;">
+    <form action="{{ url_for('gettext') }}" method="POST">
                     <input type="hidden" name="text_content" value="{{ var }}">
                     <button type="submit" class="btn btn-secondary">⬇ Download as .txt</button>
                 </form>
-                <a href="{{ url_for('web.home') }}" class="btn btn-primary">↩ Process Another</a>
+                <a href="{{ url_for('home') }}" class="btn btn-primary">Process Another Image</a>
             </div>
         </div>
     </div>

@@ -2,12 +2,15 @@ from abc import ABC, abstractmethod
 from PIL import Image
 
 
+from ocr_correction.domain import TextSnippet
+
 class BaseOCREngine(ABC):
     """Abstract base class (Port) for OCR engines."""
 
     @abstractmethod
-    def extract_text(self, image: Image.Image) -> str:
-        """Extract text from a PIL Image."""
+    def extract_text(self, image: Image.Image) -> tuple[str, list[TextSnippet]]:
+        """Extract text and bounding boxes from a PIL Image.
+        Returns a tuple of (full_text, snippets)."""
         pass
 
 

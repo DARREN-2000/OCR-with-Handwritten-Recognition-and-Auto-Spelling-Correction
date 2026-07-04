@@ -12,7 +12,7 @@ from ocr_correction import create_app
 
 @pytest.fixture
 def app():
-    """Create a Flask application configured for testing."""
+    """Create a FastAPI application configured for testing."""
     app = create_app(
         config_overrides={
             "TESTING": True,
@@ -24,8 +24,9 @@ def app():
 
 @pytest.fixture
 def client(app):
-    """Create a Flask test client."""
-    return app.test_client()
+    """Create a FastAPI test client."""
+    from fastapi.testclient import TestClient
+    return TestClient(app)
 
 
 @pytest.fixture

@@ -16,3 +16,10 @@ language-tool-python>=2.7
 pydantic-settings>=2.0
 pydantic>=2.0
 structlog>=23.0.0
+python-magic
+
+fastapi
+uvicorn
+jinja2
+python-multipart
+httpx

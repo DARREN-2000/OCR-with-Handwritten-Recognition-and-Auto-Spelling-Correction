@@ -1,11 +1,19 @@
 from pydantic import BaseModel, Field
 
 
+class BoundingBox(BaseModel):
+    """Represents a bounding box of extracted text."""
+    x: int
+    y: int
+    w: int
+    h: int
+
 class TextSnippet(BaseModel):
     """Represents a snippet of text extracted via OCR."""
     text: str = Field(..., description="The raw extracted text.")
     confidence: float | None = Field(default=None,
                                      description="Confidence score from the OCR engine.")
+    bounding_box: BoundingBox | None = Field(default=None, description="The bounding box of the text.")
 
 
 class Document(BaseModel):

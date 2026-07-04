@@ -1,36 +1,37 @@
 """
 NLP-Based OCR Spelling Correction System
 -----------------------------------------
-Flask application factory with modular OCR pipeline.
+FastAPI application factory with modular OCR pipeline.
 """
 
 import os
 
-from flask import Flask
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 __version__ = "2.0.0"
 
 
 def create_app(config_overrides=None):
     """Application factory for the OCR Spelling Correction System."""
-    app = Flask(
-        __name__,
-        template_folder="templates",
-        static_folder="static",
+    app = FastAPI(
+        title="NLP-Based OCR Spelling Correction API",
+        version=__version__,
+        description="Scalable REST API for NLP-based OCR text extraction and spelling correction.",
     )
 
-    # Default configuration
-    app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16 MB upload limit
-    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-key")
+    # Mount static files
+    app.mount(
+        "/static",
+        StaticFiles(directory=os.path.join(os.path.dirname(__file__), "static")),
+        name="static"
+    )
 
-    if config_overrides:
-        app.config.update(config_overrides)
-
-    # Register blueprints
+    # Register routers
     from ocr_correction.routes.web import web_bp
     from ocr_correction.routes.api import api_bp
 
-    app.register_blueprint(web_bp)
-    app.register_blueprint(api_bp)
+    app.include_router(web_bp)
+    app.include_router(api_bp)
 
     return app
