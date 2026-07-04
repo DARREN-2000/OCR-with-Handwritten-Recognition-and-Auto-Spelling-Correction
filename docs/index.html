@@ -26,10 +26,10 @@
         <!-- Upload Form Section -->
         <section class="upload-section" id="uploadSection">
             <div class="upload-form">
-                <div class="file-input-wrapper">
+                <div class="file-input-wrapper" id="dropZone">
                     <label for="imagefile" class="file-label">
                         <span class="file-icon">📄</span>
-                        <span class="file-text">Choose an image file</span>
+                        <span class="file-text">Choose an image file or drag it here</span>
                         <span class="file-hint">Supports JPEG, PNG, BMP, TIFF</span>
                     </label>
                     <input type="file" id="imagefile" name="imagefile" accept="image/*">
@@ -50,6 +50,7 @@
 
                 <button id="runBtn" type="button" class="btn btn-primary" style="margin-top: 1rem; width: 100%;">Extract &amp; Correct Text</button>
                 <p id="status" class="status" style="margin-top: 1rem; color: var(--color-text-muted);"></p>
+                <progress id="progressBar" value="0" max="100" style="display: none; width: 100%; margin-top: 0.5rem;"></progress>
             </div>
         </section>
 
@@ -81,9 +82,14 @@
 
             <div class="result-grid">
                 <div class="result-card">
-                    <h2>Uploaded Image</h2>
+                    <h2>Original Image</h2>
                     <div class="image-preview">
                         <img id="imagePreview" src="" alt="Uploaded image preview" style="display: none;">
+                    </div>
+
+                    <h2 style="margin-top: 1.5rem;">Pre-processed Image (for OCR)</h2>
+                    <div class="image-preview">
+                        <canvas id="preprocessedCanvas" style="display: none; max-width: 100%; border-radius: var(--radius); border: 1px solid var(--color-border);"></canvas>
                     </div>
                 </div>
 
@@ -95,7 +101,7 @@
 
                     <div>
                         <h2>Corrected Text</h2>
-                        <textarea id="correctedText" rows="6" readonly style="width: 100%; padding: 0.65rem; border: 1px solid var(--color-border); border-radius: 8px; font: inherit; font-family: monospace; resize: vertical;"></textarea>
+                        <textarea id="correctedText" rows="6" style="width: 100%; padding: 0.65rem; border: 1px solid var(--color-border); border-radius: 8px; font: inherit; font-family: monospace; resize: vertical;"></textarea>
                     </div>
 
                     <div class="result-actions">
@@ -119,6 +125,7 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script async src="https://docs.opencv.org/4.x/opencv.js" onload="onOpenCvReady();"></script>
     <script src="./app.js"></script>
 </body>
 </html>
