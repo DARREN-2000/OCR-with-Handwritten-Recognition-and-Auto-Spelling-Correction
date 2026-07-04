@@ -8,7 +8,7 @@ import uuid
 import magic
 from typing import Dict, Any
 
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException, BackgroundTasks, status
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, BackgroundTasks
 from PIL import Image
 
 from ocr_correction.config import LANGUAGE_MAP
@@ -21,6 +21,7 @@ api_bp = APIRouter(prefix="/api/v1", tags=["api"])
 
 # In-memory store for task results (in a real app, use Redis/DB)
 _tasks: Dict[str, Dict[str, Any]] = {}
+
 
 def process_ocr_task(task_id: str, raw_bytes: bytes, lang_hint: str):
     _tasks[task_id] = {"status": "processing"}
@@ -44,6 +45,7 @@ def process_ocr_task(task_id: str, raw_bytes: bytes, lang_hint: str):
             "error": "Processing failed due to an internal error."
         }
 
+
 @api_bp.get("/")
 def get_info():
     """Service info."""
@@ -63,6 +65,7 @@ def get_info():
             "GET  /api/v1/tasks/{task_id}": "Poll task status",
         },
     }
+
 
 @api_bp.post("/")
 async def post_sync(file: UploadFile = File(...), lang: str = Form("auto")):
@@ -102,6 +105,7 @@ async def post_sync(file: UploadFile = File(...), lang: str = Form("auto")):
         logger.exception("API processing error", error=str(exc))
         raise HTTPException(status_code=500, detail={"error": "Processing failed", "detail": "An internal error occurred."})
 
+
 @api_bp.post("/async")
 async def post_async(background_tasks: BackgroundTasks, file: UploadFile = File(...), lang: str = Form("auto")):
     """Asynchronous file upload returning a task ID."""
@@ -136,6 +140,7 @@ async def post_async(background_tasks: BackgroundTasks, file: UploadFile = File(
     except Exception as exc:
         logger.exception("API processing error", error=str(exc))
         raise HTTPException(status_code=500, detail={"error": "Processing failed", "detail": "An internal error occurred."})
+
 
 @api_bp.get("/tasks/{task_id}")
 def get_task_status(task_id: str):

@@ -7,7 +7,7 @@ import io
 import os
 import structlog
 
-from fastapi import APIRouter, Request, UploadFile, File, Form, HTTPException, Response
+from fastapi import APIRouter, Request, UploadFile, File, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, PlainTextResponse
 from PIL import Image

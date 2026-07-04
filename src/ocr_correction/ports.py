@@ -4,6 +4,7 @@ from PIL import Image
 
 from ocr_correction.domain import TextSnippet
 
+
 class BaseOCREngine(ABC):
     """Abstract base class (Port) for OCR engines."""
 

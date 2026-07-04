@@ -1,7 +1,5 @@
 """Tests for Flask web routes and API endpoints."""
 
-import io
-
 
 class TestWebRoutes:
     """Tests for the web UI routes."""
@@ -30,7 +28,7 @@ class TestAPIRoutes:
 
     def test_api_post_no_file(self, client):
         response = client.post("/api/v1/")
-        assert response.status_code == 422 # FastAPI standard validation error for missing field
+        assert response.status_code == 422  # FastAPI standard validation error for missing field
 
     def test_api_post_invalid_file_type(self, client):
         files = {

@@ -8,6 +8,7 @@ class BoundingBox(BaseModel):
     w: int
     h: int
 
+
 class TextSnippet(BaseModel):
     """Represents a snippet of text extracted via OCR."""
     text: str = Field(..., description="The raw extracted text.")
