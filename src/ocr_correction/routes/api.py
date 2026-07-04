@@ -6,7 +6,6 @@ import structlog
 import io
 import magic
 import base64
-from typing import Dict, Any
 
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from PIL import Image

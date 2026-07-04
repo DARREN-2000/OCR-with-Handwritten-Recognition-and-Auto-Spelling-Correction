@@ -5,7 +5,6 @@ from PIL import Image
 import io
 
 from ocr_correction.pipeline import ocr_pipeline
-from ocr_correction.exceptions import InvalidImageError
 
 logger = structlog.get_logger(__name__)
 
@@ -27,6 +26,7 @@ celery_app.conf.update(
 )
 
 import base64
+
 
 @celery_app.task(bind=True, name="ocr_tasks.process_image")
 def process_ocr_task(self, raw_bytes_b64: str | bytes, lang_hint: str = "auto"):
