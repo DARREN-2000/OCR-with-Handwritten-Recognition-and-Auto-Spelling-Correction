@@ -4,13 +4,14 @@ REST API routes for the OCR Spelling Correction System.
 
 import structlog
 import io
-import uuid
 import magic
-from typing import Dict, Any
+import base64
 
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException, BackgroundTasks
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from PIL import Image
 
+from celery.result import AsyncResult
+from ocr_correction.worker import process_ocr_task
 from ocr_correction.config import LANGUAGE_MAP
 from ocr_correction.pipeline import ocr_pipeline
 from ocr_correction.exceptions import InvalidImageError
@@ -18,32 +19,6 @@ from ocr_correction.exceptions import InvalidImageError
 logger = structlog.get_logger(__name__)
 
 api_bp = APIRouter(prefix="/api/v1", tags=["api"])
-
-# In-memory store for task results (in a real app, use Redis/DB)
-_tasks: Dict[str, Dict[str, Any]] = {}
-
-
-def process_ocr_task(task_id: str, raw_bytes: bytes, lang_hint: str):
-    _tasks[task_id] = {"status": "processing"}
-    try:
-        pil_img = Image.open(io.BytesIO(raw_bytes))
-        # No need to verify again, we did it in the endpoint
-        doc = ocr_pipeline(pil_img, lang_hint)
-        _tasks[task_id] = {
-            "status": "completed",
-            "result": {
-                "raw_text": doc.raw_text,
-                "corrected_text": doc.corrected_text,
-                "detected_language": doc.detected_language,
-                "snippets": [s.model_dump() for s in doc.snippets]
-            }
-        }
-    except Exception as exc:
-        logger.exception("Background task processing error", error=str(exc))
-        _tasks[task_id] = {
-            "status": "failed",
-            "error": "Processing failed due to an internal error."
-        }
 
 
 @api_bp.get("/")
@@ -107,7 +82,7 @@ async def post_sync(file: UploadFile = File(...), lang: str = Form("auto")):
 
 
 @api_bp.post("/async")
-async def post_async(background_tasks: BackgroundTasks, file: UploadFile = File(...), lang: str = Form("auto")):
+async def post_async(file: UploadFile = File(...), lang: str = Form("auto")):
     """Asynchronous file upload returning a task ID."""
     if not file:
         raise HTTPException(status_code=400, detail="No image file provided")
@@ -127,12 +102,11 @@ async def post_async(background_tasks: BackgroundTasks, file: UploadFile = File(
         except Exception as e:
             raise InvalidImageError("Unsupported or corrupted file type") from e
 
-        task_id = str(uuid.uuid4())
-        _tasks[task_id] = {"status": "pending"}
+        # We must serialize the raw_bytes using base64 so Celery JSON serializer handles it.
+        raw_bytes_b64 = base64.b64encode(raw_bytes).decode('utf-8')
+        task = process_ocr_task.delay(raw_bytes_b64, lang)
 
-        background_tasks.add_task(process_ocr_task, task_id, raw_bytes, lang)
-
-        return {"task_id": task_id, "status": "pending"}
+        return {"task_id": task.id, "status": "pending"}
 
     except InvalidImageError as exc:
         logger.warning("Invalid image upload via API", error=str(exc))
@@ -145,6 +119,15 @@ async def post_async(background_tasks: BackgroundTasks, file: UploadFile = File(
 @api_bp.get("/tasks/{task_id}")
 def get_task_status(task_id: str):
     """Poll task status."""
-    if task_id not in _tasks:
+    task = AsyncResult(task_id)
+    if not task:
         raise HTTPException(status_code=404, detail="Task not found")
-    return _tasks[task_id]
+
+    if task.state == 'PENDING':
+        return {"status": "pending"}
+    elif task.state == 'SUCCESS':
+        return task.result
+    elif task.state == 'FAILURE':
+        return {"status": "failed", "error": str(task.info)}
+    else:
+        return {"status": task.state.lower()}
