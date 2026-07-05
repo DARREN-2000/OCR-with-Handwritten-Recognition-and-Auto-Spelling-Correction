@@ -1,89 +1,31 @@
-# Contributing
+# Contributing to OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction
 
-Thank you for your interest in contributing to this project!
+First off, thank you for considering contributing to this project! It's people like you that make open-source software such a great community.
 
-## Getting Started
+## 1. Where do I go from here?
 
-1. **Fork** this repository and clone your fork locally.
+If you've noticed a bug or have a feature request, make sure to check our [Issues](https://github.com/DARREN-2000/OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction/issues) first to see if someone else has already created one. If not, go ahead and make one!
 
-   ```bash
-   git clone https://github.com/{your-username}/OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction.git
-   cd OCR-with-Handwritten-Recognition-and-Auto-Spelling-Correction
-   ```
+## 2. Fork & create a branch
 
-2. **Create a branch** for your change.
+If this is something you think you can fix, then fork the repository and create a branch with a descriptive name.
 
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
+## 3. Implement your fix or feature
 
-3. **Set up the development environment.**
+Make sure your code adheres to our architectural guidelines:
+*   We use **Hexagonal Architecture** (Ports and Adapters) in `src/ocr_correction`. Ensure your business logic does not leak into the API or Worker layers.
+*   We use **FastAPI** for our API.
+*   We use **Celery** for asynchronous task execution.
 
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate   # Windows: venv\Scripts\activate
-   pip install -r requirements.txt
-   pip install -r requirements-dev.txt
-   ```
+## 4. Run the tests
 
-## Project Layout
-
-| Directory | Purpose |
-|---|---|
-| `ocr_correction/` | Main application package (pipeline, routes, templates, static assets) |
-| `tests/` | Unit and integration tests |
-| `samples/` | Sample images for testing |
-| `docs/` | Documentation, notebooks, and presentations |
-
-## Ways to Contribute
-
-- Improve OCR accuracy or add new pre-processing steps
-- Extend multilingual language support
-- Improve API performance or add new endpoints
-- Fix bugs or improve error handling
-- Improve documentation or add usage examples
-- Add or improve tests
-- Add your name to [CONTRIBUTORS.md](CONTRIBUTORS.md)
-
-## Running Tests
+Before submitting your pull request, please make sure all tests pass.
 
 ```bash
-# Run all tests
-pytest
-
-# Run with verbose output
-pytest -v
-
-# Run with coverage report
-pytest --cov=ocr_correction tests/
+export PYTHONPATH=src:$PYTHONPATH
+python -m pytest tests/
 ```
 
-## Code Style
+## 5. Make a Pull Request
 
-- Follow [PEP 8](https://pep8.org/) conventions.
-- Maximum line length is **100 characters**.
-- Run `flake8` before submitting:
-
-  ```bash
-  flake8 ocr_correction/ tests/ app.py
-  ```
-
-## Submitting a Pull Request
-
-1. Commit your changes with a clear message:
-
-   ```bash
-   git add .
-   git commit -m "feat: describe your change clearly"
-   git push origin feature/your-feature-name
-   ```
-
-2. Open a Pull Request against the `master` branch and describe what you changed and why.
-
-3. Ensure CI checks pass — the test suite and linter run automatically on every PR.
-
-4. Wait for review — feedback will be given promptly.
-
----
-
-⭐ If this project helped you, please consider starring the repository!
+Submit a pull request with a clear title and description. We will review it as soon as possible.
